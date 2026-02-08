@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model InstallEvent {
+  id          String   @id @default(cuid())
+  address     String   @unique
+  installedAt DateTime @default(now())
+  userAgent   String?
+}
+
+model AirdropRegistration {
+  id           String    @id @default(cuid())
+  address      String
+  tweetId      String?
+  tweetUrl     String?
+  tweetText    String?
+  fetchedAt    DateTime?
+  airdroppedAt DateTime?
+  amount       String?
+  createdAt    DateTime  @default(now())
+
+  @@unique([address])
+}
