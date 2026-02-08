@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, VT323 } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/providers'
 import { Footer } from '@/components/footer'
@@ -11,6 +11,11 @@ const geist = Geist({
 })
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
+const vt323 = VT323({
+  weight: '400',
+  variable: '--font-vt323',
   subsets: ['latin'],
 })
 
@@ -32,7 +37,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased`}>
+      <body className={`${geist.variable} ${geistMono.variable} ${vt323.variable} font-sans antialiased`}>
         <Providers>
           <div className="min-h-screen flex flex-col">
             {children}

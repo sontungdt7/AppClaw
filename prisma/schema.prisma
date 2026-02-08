@@ -27,3 +27,16 @@ model AirdropRegistration {
 
   @@unique([address])
 }
+
+model MiniApp {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  imageUrl    String
+  url         String
+  manifestUrl String?
+  tags        String?
+  devBalance  String?  // e.g. "1M", "461.1K" for sort/display
+  verified    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
