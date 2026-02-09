@@ -10,10 +10,12 @@ import { WalletBridgeProvider } from '@/components/wallet-bridge-provider'
 function ViewContent() {
   const searchParams = useSearchParams()
   const url = searchParams.get('url')
+  const title = searchParams.get('title')
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const decoded = url ? decodeURIComponent(url) : ''
   const isExternal = decoded.startsWith('http://') || decoded.startsWith('https://')
+  const displayTitle = title ? decodeURIComponent(title) : ''
 
   if (!url) {
     return (
@@ -44,7 +46,9 @@ function ViewContent() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <span className="text-sm text-muted-foreground truncate">Mini App</span>
+          {displayTitle && (
+            <span className="text-sm text-foreground font-medium truncate">{displayTitle}</span>
+          )}
         </div>
         <iframe
           ref={iframeRef}
