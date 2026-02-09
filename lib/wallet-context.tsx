@@ -1,65 +1,53 @@
 'use client'
 
-import {
-  useConnection,
-  useConnect,
-  useDisconnect,
-  useConnectors,
-} from 'wagmi'
-import {
-  createContext,
-  useCallback,
-  useContext,
-  type ReactNode,
-} from 'react'
+import { createContext, useContext, useMemo } from 'react'
+import { usePrivy, useWallets } from '@privy-io/react-auth'
 
 type WalletContextValue = {
   address: string | null
   isConnected: boolean
-  connect: () => Promise<void>
+  connect: () => void
   disconnect: () => void
   isConnecting: boolean
 }
 
 const WalletContext = createContext<WalletContextValue | null>(null)
 
-export function WalletProvider({ children }: { children: ReactNode }) {
-  const connection = useConnection()
-  const { connectAsync, isPending } = useConnect()
-  const { disconnect: wagmiDisconnect } = useDisconnect()
-  const connectors = useConnectors()
+const DISCONNECTED_VALUE: WalletContextValue = {
+  address: null,
+  isConnected: false,
+  connect: () => {},
+  disconnect: () => {},
+  isConnecting: false,
+}
 
-  const portoConnector = connectors?.find(
-    (c) => c.id === 'xyz.ithaca.porto' || c.name === 'Porto'
+export function WalletProvider({ children }: { children: React.ReactNode }) {
+  const { ready, authenticated, login, logout } = usePrivy()
+  const { wallets } = useWallets()
+  const embeddedWallet = wallets.find((w) => (w as { walletClientType?: string }).walletClientType === 'privy')
+  const address = embeddedWallet?.address ?? wallets[0]?.address ?? null
+  const isConnected = authenticated && !!address
+  const isConnecting = !ready
+  const value = useMemo(
+    () => ({
+      address,
+      isConnected,
+      connect: login,
+      disconnect: logout,
+      isConnecting,
+    }),
+    [address, isConnected, login, logout, isConnecting]
   )
-
-  const connect = useCallback(async () => {
-    const connector = portoConnector ?? connectors?.[0]
-    if (!connector) return
-    try {
-      await connectAsync({ connector })
-    } catch {
-      // User rejected
-    }
-  }, [connectAsync, portoConnector, connectors])
-
-  const disconnect = useCallback(() => {
-    wagmiDisconnect()
-  }, [wagmiDisconnect])
-
-  const address = connection.address ?? null
-  const isConnecting = connection.status === 'connecting' || isPending
-
   return (
-    <WalletContext.Provider
-      value={{
-        address,
-        isConnected: connection.isConnected && !!address,
-        connect,
-        disconnect,
-        isConnecting,
-      }}
-    >
+    <WalletContext.Provider value={value}>
+      {children}
+    </WalletContext.Provider>
+  )
+}
+
+export function DisconnectedWalletProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <WalletContext.Provider value={DISCONNECTED_VALUE}>
       {children}
     </WalletContext.Provider>
   )

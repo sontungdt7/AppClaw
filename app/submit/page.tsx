@@ -59,16 +59,7 @@ export default function SubmitPage() {
         <div className="mx-auto max-w-xl">
           <h1 className="mb-2 text-2xl font-bold">Submit your Mini App</h1>
           <p className="mb-6 text-sm text-muted-foreground">
-            Add your app to the AppClaw App Store. It will appear automatically. Embed the{' '}
-            <a
-              href="/sdk/appclaw.js"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline"
-            >
-              AppClaw Wallet SDK
-            </a>{' '}
-            to reuse the user&apos;s Porto wallet—no connect button needed.             See the README for full API docs.
+            Add your app to the AppClaw App Store. It will appear automatically. When embedded in AppClaw, include the AppClaw SDK to let users interact with their wallet. See the README for setup.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

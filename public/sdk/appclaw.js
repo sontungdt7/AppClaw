@@ -1,109 +1,66 @@
 /**
- * AppClaw Mini App SDK
- * Use AppClaw's Porto wallet when your app is embedded in AppClaw.
- * Include: <script src="https://your-appclaw-domain/sdk/appclaw.js"></script>
+ * AppClaw SDK for mini apps embedded in iframe.
+ * Use when your app is loaded inside AppClaw's /app/view?url=...
+ *
+ * Usage:
+ *   <script src="https://appclaw.xyz/sdk/appclaw.js"></script>
+ *   <script>
+ *     AppClaw.getWallet().then(addr => console.log(addr))
+ *     AppClaw.signMessage('Hello').then(sig => console.log(sig))
+ *     AppClaw.sendTransaction({ to: '0x...', value: '0' }).then(hash => console.log(hash))
+ *   </script>
  */
 (function () {
   'use strict'
 
-  const APPCLAW_WALLET = 'APPCLAW_WALLET'
-  const APPCLAW_WALLET_GET = 'APPCLAW_WALLET_GET'
-  const APPCLAW_WALLET_REQUEST = 'APPCLAW_WALLET_REQUEST'
-  const APPCLAW_WALLET_RESPONSE = 'APPCLAW_WALLET_RESPONSE'
+  const PREFIX = 'APPCLAW_'
 
-  const state = {
-    address: null,
-    chainId: null,
-    isConnected: false,
-    _listeners: [],
+  function genId() {
+    return 'req_' + Math.random().toString(36).slice(2) + Date.now().toString(36)
   }
 
-  function updateState(payload) {
-    const prev = { ...state }
-    state.address = payload.address ?? null
-    state.chainId = payload.chainId ?? null
-    state.isConnected = payload.isConnected ?? false
-    state._listeners.forEach(function (fn) {
-      fn({ address: state.address, chainId: state.chainId, isConnected: state.isConnected }, prev)
-    })
-  }
-
-  function isInAppClaw() {
-    try {
-      return window.self !== window.top
-    } catch {
-      return true
+  function post(msg) {
+    if (window.parent === window) {
+      return Promise.reject(new Error('AppClaw SDK: not embedded in AppClaw'))
     }
-  }
-
-  const pending = Object.create(null)
-
-  window.addEventListener('message', function (event) {
-    if (event.data?.type !== APPCLAW_WALLET) return
-    updateState(event.data.payload || {})
-  })
-
-  function requestWalletState() {
-    if (isInAppClaw()) {
-      window.parent.postMessage({ type: APPCLAW_WALLET_GET }, '*')
-    }
-  }
-
-  function request(opts) {
-    return new Promise(function (resolve, reject) {
-      if (!isInAppClaw()) {
-        reject(new Error('Not embedded in AppClaw'))
-        return
-      }
-      const id = 'req_' + Date.now() + '_' + Math.random().toString(36).slice(2)
-      pending[id] = { resolve, reject }
-      window.parent.postMessage(
-        {
-          type: APPCLAW_WALLET_REQUEST,
-          id,
-          method: opts.method,
-          params: opts.params || [],
-        },
-        '*'
-      )
-    })
-  }
-
-  window.addEventListener('message', function (event) {
-    const d = event.data
-    if (d?.type !== APPCLAW_WALLET_RESPONSE || !d.id) return
-    const p = pending[d.id]
-    if (!p) return
-    delete pending[d.id]
-    if (d.error) p.reject(new Error(d.error.message || 'Wallet request failed'))
-    else p.resolve(d.result)
-  })
-
-  const AppClaw = {
-    isInAppClaw: isInAppClaw,
-    requestWalletState: requestWalletState,
-    wallet: {
-      get address() {
-        return state.address
-      },
-      get chainId() {
-        return state.chainId
-      },
-      get isConnected() {
-        return state.isConnected
-      },
-      onStateChange: function (fn) {
-        state._listeners.push(fn)
-        return function () {
-          const i = state._listeners.indexOf(fn)
-          if (i >= 0) state._listeners.splice(i, 1)
+    return new Promise((resolve, reject) => {
+      const id = genId()
+      const handler = (e) => {
+        if (!e.data || e.data.id !== id || !e.data.type?.startsWith(PREFIX)) return
+        window.removeEventListener('message', handler)
+        if (e.data.type === 'APPCLAW_ERROR') {
+          reject(new Error(e.data.payload?.message || 'Unknown error'))
+        } else {
+          resolve(e.data.payload)
         }
-      },
-      request: request,
-    },
+      }
+      window.addEventListener('message', handler)
+      window.parent.postMessage({ ...msg, id }, '*')
+      setTimeout(() => {
+        window.removeEventListener('message', handler)
+        reject(new Error('AppClaw SDK: timeout'))
+      }, 60000)
+    })
   }
 
-  if (typeof window !== 'undefined') {
-    window.AppClaw = AppClaw
+  window.AppClaw = {
+    getWallet: () =>
+      post({ type: 'APPCLAW_GET_WALLET' }).then((p) => p.address),
+
+    signMessage: (message) =>
+      post({ type: 'APPCLAW_SIGN_MESSAGE', payload: { message } }).then(
+        (p) => p.signature
+      ),
+
+    sendTransaction: (params) =>
+      post({
+        type: 'APPCLAW_SEND_TX',
+        payload: {
+          to: params.to,
+          value: params.value ?? '0x0',
+          data: params.data,
+          gasLimit: params.gasLimit,
+        },
+      }).then((p) => p.hash),
   }
 })()

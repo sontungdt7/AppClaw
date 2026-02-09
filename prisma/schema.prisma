@@ -7,25 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model InstallEvent {
-  id          String   @id @default(cuid())
-  address     String   @unique
-  installedAt DateTime @default(now())
-  userAgent   String?
+model Campaign {
+  id                String   @id @default(cuid())
+  campaignTweetId   String   @unique
+  status            String   @default("active")
+  createdAt         DateTime @default(now())
 }
 
 model AirdropRegistration {
-  id           String    @id @default(cuid())
-  address      String
-  tweetId      String?
-  tweetUrl     String?
-  tweetText    String?
-  fetchedAt    DateTime?
-  airdroppedAt DateTime?
-  amount       String?
-  createdAt    DateTime  @default(now())
+  id               String    @id @default(cuid())
+  twitterUserId    String
+  twitterUsername  String?
+  privyUserId      String?
+  walletAddress    String
+  airdroppedAt     DateTime?
+  amount           String?
+  createdAt        DateTime  @default(now())
 
-  @@unique([address])
+  @@unique([twitterUserId])
 }
 
 model MiniApp {
