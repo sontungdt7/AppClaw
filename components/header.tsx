@@ -3,13 +3,32 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronDown, MoreVertical, LogOut } from 'lucide-react'
+import { ChevronDown, MoreVertical, LogOut, Key, Code, Upload } from 'lucide-react'
 import { useWallet } from '@/lib/wallet-context'
+
+const DEV_MODE_KEY = 'appclaw-developer-mode'
 
 export function Header() {
   const { address, disconnect } = useWallet()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const [devMode, setDevMode] = useState(false)
+
+  useEffect(() => {
+    try {
+      setDevMode(localStorage.getItem(DEV_MODE_KEY) === '1')
+    } catch {
+      setDevMode(false)
+    }
+  }, [])
+
+  const toggleDevMode = () => {
+    const next = !devMode
+    setDevMode(next)
+    try {
+      localStorage.setItem(DEV_MODE_KEY, next ? '1' : '0')
+    } catch {}
+  }
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -52,6 +71,41 @@ export function Header() {
                     </p>
                   </div>
                 )}
+                <button
+                  type="button"
+                  onClick={toggleDevMode}
+                  className="flex w-full items-center justify-between gap-2 px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <span className="flex items-center gap-2">
+                    <Code className="h-4 w-4" />
+                    Developer mode
+                  </span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      devMode ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                    }`}
+                  >
+                    {devMode ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                {devMode && (
+                  <Link
+                    href="/submit"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Submit mini app
+                  </Link>
+                )}
+                <Link
+                  href="/account-association"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <Key className="h-4 w-4" />
+                  Account association
+                </Link>
                 <button
                   type="button"
                   onClick={() => {
