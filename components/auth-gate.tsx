@@ -2,12 +2,7 @@
 
 import { usePrivy, useLoginWithOAuth } from '@privy-io/react-auth'
 import { useHasPrivy } from '@/components/providers'
-import { useCallback, useEffect, useState } from 'react'
-
-function isMobileUserAgent(): boolean {
-  if (typeof window === 'undefined') return false
-  return /Android|iPhone|iPad|iPod|webOS|Mobile/i.test(navigator.userAgent)
-}
+import { useCallback, useState } from 'react'
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const hasPrivy = useHasPrivy()
@@ -20,22 +15,19 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 function AuthGateInner({ children }: { children: React.ReactNode }) {
-  const { ready, authenticated, login } = usePrivy()
+  const { ready, authenticated } = usePrivy()
   const { initOAuth, loading: oauthLoading } = useLoginWithOAuth()
-  const [isMobile, setIsMobile] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    setIsMobile(isMobileUserAgent())
-  }, [])
-
-  const handleLogin = useCallback(() => {
-    if (isMobile) {
-      // Redirect flow: opens X app or browser in same window. Works on Android when popup would fail.
-      initOAuth({ provider: 'twitter' })
-    } else {
-      login()
+  // Always use redirect flow (no popup). Popups often fail on mobile; redirect works on desktop too.
+  const handleLogin = useCallback(async () => {
+    setError(null)
+    try {
+      await initOAuth({ provider: 'twitter' })
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Login failed. Try again or use a different browser.')
     }
-  }, [isMobile, initOAuth, login])
+  }, [initOAuth])
 
   if (!ready) {
     return (
@@ -61,6 +53,11 @@ function AuthGateInner({ children }: { children: React.ReactNode }) {
           >
             {oauthLoading ? 'Opening X…' : 'Login with X'}
           </button>
+          {error && (
+            <p className="text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          )}
         </div>
       </div>
     )

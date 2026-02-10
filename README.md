@@ -23,7 +23,7 @@ PWA super app with Privy (Twitter-only login) and embedded wallet on Base. Airdr
    npm run db:push
    ```
 
-4. In [Privy Dashboard](https://dashboard.privy.io): Enable Twitter as login method; configure embedded wallets. For **Android/mobile login**, add your app URL(s) to **Allowed OAuth redirect URLs** (e.g. `https://appclaw.xyz`, `https://appclaw.xyz/`) so the X redirect flow works.
+4. In [Privy Dashboard](https://dashboard.privy.io): Enable Twitter as login method; configure embedded wallets. Login uses **redirect flow** (no popup) so it works on mobile. Add your app URL(s) to **Allowed OAuth redirect URLs** (e.g. `https://appclaw.xyz`, `https://appclaw.xyz/`, and your exact production origin). If login fails on mobile, confirm that URL is in the list and that your X/Twitter developer app has the same callback URL.
 
 ## Run
 
