@@ -3,8 +3,6 @@
 import { Gift } from 'lucide-react'
 import { useWallet } from '@/lib/wallet-context'
 import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-
 type Campaign = { campaignTweetId: string | null; retweetUrl: string | null }
 
 export function AirdropMiniApp() {
@@ -41,16 +39,14 @@ export function AirdropMiniApp() {
         </div>
 
         {campaign?.retweetUrl ? (
-          <Button asChild className="w-full sm:w-auto">
-            <a
-              href={campaign.retweetUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2"
-            >
-              Repost to claim
-            </a>
-          </Button>
+          <a
+            href={campaign.retweetUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+          >
+            Repost to claim
+          </a>
         ) : (
           <p className="text-sm text-muted-foreground">
             Campaign not started yet. Check back soon or retweet our tweet from appclaw.xyz when it’s live.
