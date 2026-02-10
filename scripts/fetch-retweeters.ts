@@ -1,6 +1,10 @@
 /**
  * Cron: Fetch retweeters of campaign tweet
- * For each retweeter: ensure Privy user + wallet exists, upsert AirdropRegistration
+ * Only processes NEW retweeters (not already in AirdropRegistration) to minimize
+ * X API cost (one fetch per run) and Privy/DB load.
+ *
+ * Run fetch-retweeters 2–4x per day (e.g. 0:00, 6:00, 12:00, 18:00 UTC) to keep
+ * X API cost low while still good UX (eligibility within hours).
  *
  * Requires: TWITTER_BEARER_TOKEN, PRIVY_APP_SECRET, DATABASE_URL
  * Run: npx tsx scripts/fetch-retweeters.ts
@@ -78,19 +82,25 @@ async function main() {
   const retweeters = await getRetweeters(tweetId)
   console.log(`Found ${retweeters.length} retweeters`)
 
-  for (const u of retweeters) {
+  const existingUserIds = new Set(
+    (await prisma.airdropRegistration.findMany({ select: { twitterUserId: true } })).map(
+      (r) => r.twitterUserId
+    )
+  )
+  const newRetweeters = retweeters.filter((u) => !existingUserIds.has(u.id))
+  console.log(`${newRetweeters.length} new (${retweeters.length - newRetweeters.length} already registered)`)
+
+  for (const u of newRetweeters) {
     try {
       const { walletAddress, privyUserId } = await ensureUserAndWallet(u.id, u.username)
-      await prisma.airdropRegistration.upsert({
-        where: { twitterUserId: u.id },
-        create: {
+      await prisma.airdropRegistration.create({
+        data: {
           twitterUserId: u.id,
           twitterUsername: u.username ?? null,
           privyUserId: privyUserId ?? null,
           walletAddress,
           amount: process.env.AIRDROP_AMOUNT ?? '1000',
         },
-        update: { twitterUsername: u.username ?? undefined, privyUserId, walletAddress },
       })
       console.log(`  OK: ${u.username ?? u.id} -> ${walletAddress.slice(0, 10)}...`)
     } catch (e) {

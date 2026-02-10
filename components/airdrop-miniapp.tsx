@@ -2,9 +2,21 @@
 
 import { Gift } from 'lucide-react'
 import { useWallet } from '@/lib/wallet-context'
+import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+
+type Campaign = { campaignTweetId: string | null; retweetUrl: string | null }
 
 export function AirdropMiniApp() {
   const { isConnected } = useWallet()
+  const [campaign, setCampaign] = useState<Campaign | null>(null)
+
+  useEffect(() => {
+    fetch('/api/campaign')
+      .then((res) => res.json())
+      .then((data: Campaign) => setCampaign(data))
+      .catch(() => setCampaign({ campaignTweetId: null, retweetUrl: null }))
+  }, [])
 
   return (
     <div className="container mx-auto max-w-xl px-4 py-6">
@@ -15,18 +27,35 @@ export function AirdropMiniApp() {
           </div>
           <div>
             <h2 className="font-semibold text-lg">APPCLAW Airdrop</h2>
-            <p className="text-sm text-muted-foreground">Fixed amount per eligible user</p>
+            <p className="text-sm text-muted-foreground">Repost our tweet to claim. No login required.</p>
           </div>
         </div>
 
         <div className="space-y-3 text-sm">
           <h3 className="font-medium">How to claim:</h3>
           <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-            <li>Retweet our campaign tweet: &quot;I am claiming my airdrop on appclaw.xyz. Retweet to claim yours.&quot;</li>
-            <li>No login or PWA install required</li>
-            <li>We batch airdrop to all retweeters on cron</li>
+            <li>Tap the button below to open our campaign tweet</li>
+            <li>Repost (retweet) it — one tap on X</li>
+            <li>We add retweeters to the airdrop list and send tokens in batches (2–4x per day)</li>
           </ol>
         </div>
+
+        {campaign?.retweetUrl ? (
+          <Button asChild className="w-full sm:w-auto">
+            <a
+              href={campaign.retweetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2"
+            >
+              Repost to claim
+            </a>
+          </Button>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Campaign not started yet. Check back soon or retweet our tweet from appclaw.xyz when it’s live.
+          </p>
+        )}
 
         {!isConnected && (
           <p className="text-sm text-muted-foreground">
@@ -36,7 +65,7 @@ export function AirdropMiniApp() {
 
         {isConnected && (
           <p className="text-sm text-primary">
-            Logged in. Retweet our campaign tweet to claim your airdrop.
+            Logged in. Repost our campaign tweet to claim your airdrop.
           </p>
         )}
       </div>

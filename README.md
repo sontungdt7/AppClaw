@@ -23,7 +23,7 @@ PWA super app with Privy (Twitter-only login) and embedded wallet on Base. Airdr
    npm run db:push
    ```
 
-4. In [Privy Dashboard](https://dashboard.privy.io): Enable Twitter as login method; configure embedded wallets.
+4. In [Privy Dashboard](https://dashboard.privy.io): Enable Twitter as login method; configure embedded wallets. For **Android/mobile login**, add your app URL(s) to **Allowed OAuth redirect URLs** (e.g. `https://appclaw.xyz`, `https://appclaw.xyz/`) so the X redirect flow works.
 
 ## Run
 
@@ -31,15 +31,17 @@ PWA super app with Privy (Twitter-only login) and embedded wallet on Base. Airdr
 npm run dev
 ```
 
-## Campaign & Airdrop
+## Campaign & Airdrop (Repost flow — minimal X API cost)
 
-1. **Start campaign**: `POST /api/campaign/start` — Posts the campaign tweet via Twitter API, stores tweet ID. (Requires Twitter API v2 write access.)
+1. **Start campaign**: `POST /api/campaign/start` — Posts the campaign tweet via X API, stores tweet ID. (Requires X API v2 write access.)
 
-2. **User action**: User retweets "I am claiming my airdrop on appclaw.xyz. Retweet to claim yours." No login, no PWA install.
+2. **User action**: User reposts (retweets) the campaign tweet. In-app, the Claw Airdrop mini app shows a **one-tap "Repost to claim"** button (`GET /api/campaign` provides the retweet URL). No login or PWA install required to repost.
 
-3. **Cron – fetch retweeters**: `npx tsx scripts/fetch-retweeters.ts` — Fetches retweeters, creates Privy users + wallets for new Twitter accounts, upserts AirdropRegistration.
+3. **Cron – fetch retweeters**: `npx tsx scripts/fetch-retweeters.ts` — Calls X once per run (`GET /2/tweets/:id/retweeted_by`), then **only processes new retweeters** (skips already-registered users to save Privy/DB work). Run **2–4x per day** (e.g. 0:00, 6:00, 12:00, 18:00 UTC) to keep X API cost low while keeping good UX (eligibility within hours).
 
 4. **Cron – batch airdrop**: `npx tsx scripts/batch-airdrop.ts` — Transfers APPCLAW to pending registrations.
+
+**Minimizing X API cost (pay-per-use):** Run fetch-retweeters 2–4x per day, not every few minutes. One campaign tweet; one retweeted_by fetch per run; no search or extra user lookups.
 
 **Env for scripts**: `TWITTER_BEARER_TOKEN`, `PRIVY_APP_SECRET`, `DATABASE_URL`, `PRIVATE_KEY`, `TOKEN_ADDRESS`, `AIRDROP_AMOUNT` (default 1000). Optional: `CAMPAIGN_TWEET_ID` (fallback if campaign start not used).
 

@@ -11,4 +11,6 @@ export const privyConfig = {
   },
   defaultChain: base,
   supportedChains: [base],
+  // Allow OAuth in PWA/standalone and embedded browsers (e.g. Android) so X login can complete
+  allowOAuthInEmbeddedBrowsers: true,
 }

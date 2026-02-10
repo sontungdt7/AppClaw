@@ -114,9 +114,12 @@ Mini apps include a script and use a simple API:
 
 ---
 
-## 3. Retweet Airdrop Flow
+## 3. Retweet Airdrop Flow (Repost — max viral, minimal X API cost)
 
-(Unchanged from previous plan.)
+- **One campaign tweet**; users **repost (retweet)** to qualify. No search, no strict-format posts.
+- **UX:** In-app “Repost to claim” button uses pre-filled retweet URL from `GET /api/campaign` (one tap to X).
+- **X API cost:** One `POST /2/tweets` when starting campaign; cron runs `GET /2/tweets/:id/retweeted_by` once per run. Run cron **2–4x per day** (e.g. 0:00, 6:00, 12:00, 18:00 UTC) so cost stays low and eligibility is still within hours.
+- **Optimization:** fetch-retweeters only processes **new** retweeters (skips already-registered Twitter IDs), so Privy and DB work are minimized on each run.
 
 ```mermaid
 sequenceDiagram
@@ -132,14 +135,17 @@ sequenceDiagram
     X-->>Server: tweet_id
     Server->>Server: Store campaign_tweet_id in DB
     
-    User->>X: Retweet campaign tweet
+    User->>Server: GET /api/campaign (retweet URL)
+    Server-->>User: retweetUrl
+    User->>X: Open retweet URL, repost
     User->>User: No login required
     
-    Server->>Server: Cron: fetch-retweeters
-    Server->>X: GET /2/tweets/:id/retweeted_by
+    Server->>Server: Cron: fetch-retweeters (2–4x/day)
+    Server->>X: GET /2/tweets/:id/retweeted_by (once per run)
     X-->>Server: List of retweeter user IDs
+    Server->>Server: Diff: only new retweeters
     
-    loop For each retweeter
+    loop For each NEW retweeter
         Server->>Privy: Get user by Twitter subject (or create)
         alt User exists
             Privy-->>Server: User + wallet address
@@ -153,6 +159,12 @@ sequenceDiagram
     Server->>Server: Cron: batch-airdrop
     Server->>Base: Transfer APPCLAW to each address
 ```
+
+### 3.1 Cost minimization (X pay-per-use)
+
+- **Cron frequency:** Run fetch-retweeters **2–4x per day** (e.g. 0:00, 6:00, 12:00, 18:00 UTC). Avoid running every few minutes.
+- **One API read per run:** Single `GET /2/tweets/:id/retweeted_by` (paginated); no search, no per-user lookups.
+- **Only new retweeters:** Script diffs against existing AirdropRegistration and only creates Privy users + DB rows for new Twitter IDs.
 
 ---
 
@@ -172,7 +184,9 @@ sequenceDiagram
 AppClaw/
 ├── app/
 │   ├── api/
-│   │   ├── campaign/start/route.ts
+│   │   ├── campaign/
+│   │   │   ├── route.ts         # GET: current campaign + retweet URL
+│   │   │   └── start/route.ts   # POST: create campaign tweet
 │   │   └── miniapps/
 │   ├── app/
 │   │   ├── [id]/page.tsx
@@ -183,12 +197,13 @@ AppClaw/
 │   ├── wallet-context.tsx
 │   └── wallet-bridge.ts     # parent postMessage listener
 ├── components/
+│   ├── airdrop-miniapp.tsx  # "Repost to claim" button + campaign URL
 │   └── wallet-bridge-provider.tsx
 ├── public/
 │   └── sdk/
 │       └── appclaw.js      # mini app SDK
 └── scripts/
-    ├── fetch-retweeters.ts
+    ├── fetch-retweeters.ts  # Only processes new retweeters; run 2–4x/day
     └── batch-airdrop.ts
 ```
 
