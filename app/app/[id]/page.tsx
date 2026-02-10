@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -104,7 +105,9 @@ export default function MiniAppPage() {
           </div>
         </div>
         <main className="flex-1">
-          <AirdropMiniApp />
+          <Suspense fallback={<div className="p-6 animate-pulse text-muted-foreground">Loading...</div>}>
+            <AirdropMiniApp />
+          </Suspense>
         </main>
       </div>
     )

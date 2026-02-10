@@ -2,7 +2,7 @@
 
 App store for mini apps. **App For Human. Build By Agent.**
 
-PWA super app with Privy (Twitter-only login) and embedded wallet on Base. Airdrop: users retweet the campaign tweet; server fetches retweeters, creates Privy users + wallets, and batch airdrops on cron.
+PWA super app with **Porto** wallet on Base. Users connect with Porto to use the app. Airdrop: users link their X account in the airdrop mini app, repost the campaign tweet; server verifies reposts and airdrops APPCLAW to their Porto wallet (max 1,000 users in the first campaign).
 
 ## Setup
 
@@ -14,8 +14,6 @@ PWA super app with Privy (Twitter-only login) and embedded wallet on Base. Airdr
 2. Add `.env`:
    ```
    DATABASE_URL="file:./dev.db"
-   NEXT_PUBLIC_PRIVY_APP_ID="your-privy-app-id"
-   PRIVY_APP_SECRET="your-privy-app-secret"
    ```
 
 3. Initialize database:
@@ -23,27 +21,25 @@ PWA super app with Privy (Twitter-only login) and embedded wallet on Base. Airdr
    npm run db:push
    ```
 
-4. In [Privy Dashboard](https://dashboard.privy.io): Enable Twitter as login method; configure embedded wallets. Login uses **redirect flow** (no popup) so it works on mobile. Add your app URL(s) to **Allowed OAuth redirect URLs** (e.g. `https://appclaw.xyz`, `https://appclaw.xyz/`, and your exact production origin). If login fails on mobile, confirm that URL is in the list and that your X/Twitter developer app has the same callback URL.
-
 ## Run
 
 ```bash
 npm run dev
 ```
 
-## Campaign & Airdrop (Repost flow — minimal X API cost)
+## Campaign & Airdrop (Porto + link X)
 
 1. **Start campaign**: `POST /api/campaign/start` — Posts the campaign tweet via X API, stores tweet ID. (Requires X API v2 write access.)
 
-2. **User action**: User reposts (retweets) the campaign tweet. In-app, the Claw Airdrop mini app shows a **one-tap "Repost to claim"** button (`GET /api/campaign` provides the retweet URL). No login or PWA install required to repost.
+2. **User flow**: User connects **Porto** wallet to use the app. In the **Airdrop** mini app they (1) **Link X to claim** (OAuth with X), (2) **Repost** the campaign tweet. Server verifies reposts and airdrops to their Porto wallet.
 
-3. **Cron – fetch retweeters**: `npx tsx scripts/fetch-retweeters.ts` — Calls X once per run (`GET /2/tweets/:id/retweeted_by`), then **only processes new retweeters** (skips already-registered users to save Privy/DB work). Run **2–4x per day** (e.g. 0:00, 6:00, 12:00, 18:00 UTC) to keep X API cost low while keeping good UX (eligibility within hours).
+3. **Cron – fetch retweeters**: `npx tsx scripts/fetch-retweeters.ts` — Syncs Twitter usernames for existing registrations who retweeted. Run 2–4x per day. Requires: `TWITTER_BEARER_TOKEN`, `DATABASE_URL`.
 
-4. **Cron – batch airdrop**: `npx tsx scripts/batch-airdrop.ts` — Transfers APPCLAW to pending registrations.
+4. **Cron – batch airdrop**: `npx tsx scripts/batch-airdrop.ts` — Fetches retweeters, finds registered users (linked X) who reposted and not yet airdropped, sends APPCLAW to their Porto wallet. **Capped at 1,000 recipients** for the first campaign. Requires: `TWITTER_BEARER_TOKEN`, `PRIVATE_KEY`, `TOKEN_ADDRESS`, `DATABASE_URL`.
 
-**Minimizing X API cost (pay-per-use):** Run fetch-retweeters 2–4x per day, not every few minutes. One campaign tweet; one retweeted_by fetch per run; no search or extra user lookups.
+**Airdrop link-X OAuth** (for “Link X to claim” in the airdrop mini app): Set `X_OAUTH2_CLIENT_ID` and `X_OAUTH2_CLIENT_SECRET` from the [X Developer Portal](https://developer.x.com/) (OAuth 2.0 with PKCE). Callback URL: `https://your-domain/api/airdrop/link-x-callback`.
 
-**Env for scripts**: `TWITTER_BEARER_TOKEN`, `PRIVY_APP_SECRET`, `DATABASE_URL`, `PRIVATE_KEY`, `TOKEN_ADDRESS`, `AIRDROP_AMOUNT` (default 1000). Optional: `CAMPAIGN_TWEET_ID` (fallback if campaign start not used).
+**Env for scripts**: `TWITTER_BEARER_TOKEN`, `DATABASE_URL`, `PRIVATE_KEY`, `TOKEN_ADDRESS`, `AIRDROP_AMOUNT` (default 1000). Optional: `CAMPAIGN_TWEET_ID`. For link-X: `X_OAUTH2_CLIENT_ID`, `X_OAUTH2_CLIENT_SECRET`.
 
 ## Token
 
@@ -57,7 +53,7 @@ The APPCLAW token contract is built in a separate project. Set `TOKEN_ADDRESS` w
 
 ## AppClaw Wallet Bridge (For 3rd Party Mini Apps)
 
-When your app is embedded in AppClaw (`/app/view?url=...`), users get their AppClaw (Privy) wallet via a **postMessage bridge**. No re-login; the parent holds the session.
+When your app is embedded in AppClaw (`/app/view?url=...`), users get their connected **Porto** wallet via a **postMessage bridge**.
 
 1. Include the AppClaw SDK in your mini app:
    ```html
@@ -76,10 +72,11 @@ When your app is embedded in AppClaw (`/app/view?url=...`), users get their AppC
    AppClaw.sendTransaction({ to: '0x...', value: '0', data: '0x...' }).then(hash => console.log(hash))
    ```
 
-3. Every sign/send goes through AppClaw's confirmation UI. Mini apps cannot drain the wallet directly.
+3. Every sign/send goes through the wallet’s confirmation. Mini apps cannot drain the wallet directly.
 
 ## Architecture
 
 - **PWA**: Next.js, manifest, install prompt
-- **Wallet**: Privy (Twitter-only login, embedded wallet) on Base
+- **Wallet**: Porto (via Wagmi) on Base
+- **Airdrop**: User links X in airdrop mini app; server verifies repost and airdrops to Porto wallet (max 1,000 first campaign)
 - **Mini apps**: Loaded in iframe; receive wallet via postMessage bridge (no re-login, secure)

@@ -1,71 +1,12 @@
 /**
- * Cron: Fetch retweeters of campaign tweet
- * Only processes NEW retweeters (not already in AirdropRegistration) to minimize
- * X API cost (one fetch per run) and Privy/DB load.
+ * Cron: Sync Twitter usernames for existing AirdropRegistrations who retweeted.
+ * Does NOT create new registrations (users register by linking X in the airdrop mini app).
  *
- * Run fetch-retweeters 2–4x per day (e.g. 0:00, 6:00, 12:00, 18:00 UTC) to keep
- * X API cost low while still good UX (eligibility within hours).
- *
- * Requires: TWITTER_BEARER_TOKEN, PRIVY_APP_SECRET, DATABASE_URL
+ * Run 2–4x per day. Requires: TWITTER_BEARER_TOKEN, DATABASE_URL
  * Run: npx tsx scripts/fetch-retweeters.ts
  */
-
 import { prisma } from '../lib/db'
-import {
-  getPrivyUserByTwitterSubject,
-  createPrivyUserWithTwitter,
-  pregeneratePrivyWallet,
-  getWalletAddressFromPrivyUser,
-} from '../lib/privy-server'
-
-async function getRetweeters(tweetId: string): Promise<{ id: string; username?: string }[]> {
-  const token = process.env.TWITTER_BEARER_TOKEN
-  if (!token) throw new Error('Missing TWITTER_BEARER_TOKEN')
-
-  const users: { id: string; username?: string }[] = []
-  let nextToken: string | undefined
-
-  do {
-    const params = new URLSearchParams({ max_results: '100' })
-    if (nextToken) params.set('pagination_token', nextToken)
-    if (params.get('user.fields')) params.set('user.fields', 'username')
-
-    const res = await fetch(
-      `https://api.twitter.com/2/tweets/${tweetId}/retweeted_by?${params}&user.fields=username`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
-    if (!res.ok) throw new Error(`Twitter API error: ${res.status} ${await res.text()}`)
-
-    const data = (await res.json()) as {
-      data?: { id: string; username?: string }[]
-      meta?: { next_token?: string }
-    }
-    if (data.data) users.push(...data.data)
-    nextToken = data.meta?.next_token
-  } while (nextToken)
-
-  return users
-}
-
-async function ensureUserAndWallet(
-  twitterUserId: string,
-  twitterUsername?: string
-): Promise<{ walletAddress: string; privyUserId?: string }> {
-  let user = await getPrivyUserByTwitterSubject(twitterUserId)
-  if (!user) {
-    user = await createPrivyUserWithTwitter(twitterUserId, twitterUsername)
-    const pregen = await pregeneratePrivyWallet(user.id)
-    if (pregen?.address) return { walletAddress: pregen.address, privyUserId: user.id }
-    user = await getPrivyUserByTwitterSubject(twitterUserId)
-  }
-  let address = getWalletAddressFromPrivyUser(user ?? {})
-  if (!address && user?.id) {
-    const pregen = await pregeneratePrivyWallet(user.id)
-    address = pregen?.address ?? getWalletAddressFromPrivyUser(user ?? {})
-  }
-  if (!address) throw new Error(`No wallet address for twitter user ${twitterUserId}`)
-  return { walletAddress: address, privyUserId: user?.id }
-}
+import { getRetweeters } from '../lib/x-api'
 
 async function main() {
   const campaign = await prisma.campaign.findFirst({
@@ -82,30 +23,20 @@ async function main() {
   const retweeters = await getRetweeters(tweetId)
   console.log(`Found ${retweeters.length} retweeters`)
 
-  const existingUserIds = new Set(
-    (await prisma.airdropRegistration.findMany({ select: { twitterUserId: true } })).map(
-      (r) => r.twitterUserId
-    )
-  )
-  const newRetweeters = retweeters.filter((u) => !existingUserIds.has(u.id))
-  console.log(`${newRetweeters.length} new (${retweeters.length - newRetweeters.length} already registered)`)
+  const byId = new Map(retweeters.map((u) => [u.id, u]))
+  const existing = await prisma.airdropRegistration.findMany({
+    where: { twitterUserId: { in: [...byId.keys()] } },
+    select: { id: true, twitterUserId: true },
+  })
 
-  for (const u of newRetweeters) {
-    try {
-      const { walletAddress, privyUserId } = await ensureUserAndWallet(u.id, u.username)
-      await prisma.airdropRegistration.create({
-        data: {
-          twitterUserId: u.id,
-          twitterUsername: u.username ?? null,
-          privyUserId: privyUserId ?? null,
-          walletAddress,
-          amount: process.env.AIRDROP_AMOUNT ?? '1000',
-        },
-      })
-      console.log(`  OK: ${u.username ?? u.id} -> ${walletAddress.slice(0, 10)}...`)
-    } catch (e) {
-      console.error(`  FAIL: ${u.id}`, e)
-    }
+  for (const reg of existing) {
+    const u = byId.get(reg.twitterUserId)
+    if (!u?.username) continue
+    await prisma.airdropRegistration.update({
+      where: { id: reg.id },
+      data: { twitterUsername: u.username },
+    })
+    console.log(`  Updated @${u.username}`)
   }
 
   console.log('Done')

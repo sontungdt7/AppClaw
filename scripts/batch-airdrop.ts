@@ -1,16 +1,18 @@
 /**
- * Cron: Batch airdrop APPCLAW to eligible AirdropRegistrations
- * - Filter: airdroppedAt is null
- * - Uses viem to transfer ERC20
+ * Batch airdrop APPCLAW to eligible AirdropRegistrations.
+ * Eligibility: (1) linked X in airdrop app, (2) reposted campaign tweet, (3) not yet airdropped.
+ * First campaign capped at 1000 recipients.
  *
- * Requires: PRIVATE_KEY (airdrop wallet), TOKEN_ADDRESS, DATABASE_URL
+ * Requires: TWITTER_BEARER_TOKEN, PRIVATE_KEY, TOKEN_ADDRESS, DATABASE_URL
  * Run: npx tsx scripts/batch-airdrop.ts
  */
-
 import { createWalletClient, http, parseAbi } from 'viem'
 import { base } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { prisma } from '../lib/db'
+import { getRetweeters } from '../lib/x-api'
+
+const AIRDROP_MAX_RECIPIENTS = 1000
 
 const ERC20_ABI = parseAbi([
   'function transfer(address to, uint256 amount) returns (bool)',
@@ -26,21 +28,45 @@ async function main() {
     process.exit(1)
   }
 
+  const campaign = await prisma.campaign.findFirst({
+    where: { status: 'active' },
+    orderBy: { createdAt: 'desc' },
+  })
+  const tweetId = campaign?.campaignTweetId ?? process.env.CAMPAIGN_TWEET_ID
+  if (!tweetId) {
+    console.error('No campaign tweet. Set CAMPAIGN_TWEET_ID or run POST /api/campaign/start')
+    process.exit(1)
+  }
+
+  const retweeterIds = new Set((await getRetweeters(tweetId)).map((u) => u.id))
+  console.log(`${retweeterIds.size} retweeters`)
+
+  const pending = await prisma.airdropRegistration.findMany({
+    where: {
+      airdroppedAt: null,
+      twitterUserId: { in: [...retweeterIds] },
+    },
+    orderBy: { createdAt: 'asc' },
+    take: AIRDROP_MAX_RECIPIENTS,
+  })
+
+  const alreadyAirdropped = await prisma.airdropRegistration.count({
+    where: { airdroppedAt: { not: null } },
+  })
+  const capRemaining = Math.max(0, AIRDROP_MAX_RECIPIENTS - alreadyAirdropped)
+  const toSend = pending.slice(0, capRemaining)
+
+  console.log(`Airdropping ${amountPerUser} APPCLAW to ${toSend.length} addresses (cap ${AIRDROP_MAX_RECIPIENTS}, ${alreadyAirdropped} already sent)`)
+
   const account = privateKeyToAccount(privateKey as `0x${string}`)
   const client = createWalletClient({
     account,
     chain: base,
     transport: http(),
   })
+  const amountWei = BigInt(amountPerUser) * BigInt(10) ** BigInt(18)
 
-  const amountWei = BigInt(amountPerUser) * (BigInt(10) ** BigInt(18))
-  const pending = await prisma.airdropRegistration.findMany({
-    where: { airdroppedAt: null },
-  })
-
-  console.log(`Airdropping ${amountPerUser} APPCLAW to ${pending.length} addresses`)
-
-  for (const reg of pending) {
+  for (const reg of toSend) {
     try {
       const hash = await client.writeContract({
         address: tokenAddress as `0x${string}`,

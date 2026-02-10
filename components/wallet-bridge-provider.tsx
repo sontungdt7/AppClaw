@@ -1,11 +1,9 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
-import { usePrivy, useWallets } from '@privy-io/react-auth'
-import { useSignMessage, useSendTransaction } from '@privy-io/react-auth'
+import { useCallback, useEffect } from 'react'
+import { useAccount, useSignMessage, useSendTransaction } from 'wagmi'
 import { base } from 'viem/chains'
 import { isBridgeRequest, sendToIframe, type BridgeRequest } from '@/lib/wallet-bridge'
-import { useHasPrivy } from '@/components/providers'
 
 type WalletBridgeProviderProps = {
   iframeRef: React.RefObject<HTMLIFrameElement | null>
@@ -13,24 +11,17 @@ type WalletBridgeProviderProps = {
 }
 
 export function WalletBridgeProvider({ iframeRef, children }: WalletBridgeProviderProps) {
-  const hasPrivy = useHasPrivy()
-  if (!hasPrivy) return <>{children}</>
   return <WalletBridgeProviderInner iframeRef={iframeRef}>{children}</WalletBridgeProviderInner>
 }
 
 function WalletBridgeProviderInner({ iframeRef, children }: WalletBridgeProviderProps) {
-  const { authenticated } = usePrivy()
-  const { wallets } = useWallets()
-  const { signMessage } = useSignMessage()
-  const { sendTransaction } = useSendTransaction()
-  const embeddedWallet = wallets.find(
-    (w) => (w as { walletClientType?: string }).walletClientType === 'privy'
-  )
-  const address = embeddedWallet?.address ?? wallets[0]?.address ?? null
+  const { address, isConnected } = useAccount()
+  const { signMessageAsync } = useSignMessage()
+  const { sendTransactionAsync } = useSendTransaction()
 
   const handleRequest = useCallback(
     async (req: BridgeRequest, source: MessageEventSource) => {
-      if (!authenticated || !address) {
+      if (!isConnected || !address) {
         sendToIframe(source, {
           type: 'APPCLAW_ERROR',
           id: req.id,
@@ -59,11 +50,11 @@ function WalletBridgeProviderInner({ iframeRef, children }: WalletBridgeProvider
               })
               return
             }
-            const { signature } = await signMessage({ message }, { address })
+            const signature = await signMessageAsync({ message })
             sendToIframe(source, {
               type: 'APPCLAW_SIGN_RESULT',
               id: req.id,
-              payload: { signature },
+              payload: { signature: signature ?? '' },
             })
             break
           }
@@ -78,18 +69,17 @@ function WalletBridgeProviderInner({ iframeRef, children }: WalletBridgeProvider
               })
               return
             }
-            const tx: Parameters<typeof sendTransaction>[0] = {
+            const hash = await sendTransactionAsync({
               to: to as `0x${string}`,
               value: BigInt(value),
               chainId: base.id,
-            }
-            if (data) tx.data = data as `0x${string}`
-            if (gasLimit) tx.gasLimit = BigInt(gasLimit)
-            const { hash } = await sendTransaction(tx, { address })
+              ...(data && { data: data as `0x${string}` }),
+              ...(gasLimit && { gas: BigInt(gasLimit) }),
+            })
             sendToIframe(source, {
               type: 'APPCLAW_TX_RESULT',
               id: req.id,
-              payload: { hash },
+              payload: { hash: hash ?? '' },
             })
             break
           }
@@ -110,7 +100,7 @@ function WalletBridgeProviderInner({ iframeRef, children }: WalletBridgeProvider
         })
       }
     },
-    [authenticated, address, signMessage, sendTransaction]
+    [isConnected, address, signMessageAsync, sendTransactionAsync]
   )
 
   useEffect(() => {

@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { Header } from '@/components/header'
-import { useSignMessage } from '@privy-io/react-auth'
-import { useWallets } from '@privy-io/react-auth'
+import { useAccount, useSignMessage } from 'wagmi'
 
 export default function AccountAssociationPage() {
   const [domain, setDomain] = useState('')
@@ -12,12 +11,8 @@ export default function AccountAssociationPage() {
   const [result, setResult] = useState<{ accountAssociation: object; manifest: object } | null>(null)
   const [error, setError] = useState('')
 
-  const { signMessage } = useSignMessage()
-  const { wallets } = useWallets()
-  const embeddedWallet = wallets.find(
-    (w) => (w as { walletClientType?: string }).walletClientType === 'privy'
-  )
-  const address = embeddedWallet?.address ?? wallets[0]?.address ?? null
+  const { address } = useAccount()
+  const { signMessageAsync } = useSignMessage()
 
   async function handleGenerate() {
     setError('')
@@ -43,8 +38,8 @@ export default function AccountAssociationPage() {
         return
       }
 
-      const signature = await signMessage({ message: data.message }, { address })
-      if (!signature?.signature) {
+      const signature = await signMessageAsync({ message: data.message })
+      if (!signature) {
         setError('Signing cancelled or failed')
         setStep('input')
         return
@@ -55,7 +50,7 @@ export default function AccountAssociationPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           domain: d,
-          signature: signature.signature,
+          signature,
           nonce: data.nonce,
           timestamp: data.timestamp,
         }),
