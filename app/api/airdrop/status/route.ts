@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     linked: true,
     twitterUsername: reg.twitterUsername ?? undefined,
+    hasReposted: !!reg.repostedAt,
     airdroppedAt: reg.airdroppedAt?.toISOString() ?? null,
     amount: reg.amount ?? undefined,
   })

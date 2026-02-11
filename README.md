@@ -39,7 +39,9 @@ npm run dev
 
 **Airdrop link-X OAuth** (for “Link X to claim” in the airdrop mini app): Set `X_OAUTH2_CLIENT_ID` and `X_OAUTH2_CLIENT_SECRET` from the [X Developer Portal](https://developer.x.com/) (OAuth 2.0 with PKCE). Callback URL: `https://your-domain/api/airdrop/link-x-callback`.
 
-**Env for scripts**: `TWITTER_BEARER_TOKEN`, `DATABASE_URL`, `PRIVATE_KEY`, `TOKEN_ADDRESS`, `AIRDROP_AMOUNT` (default 1000). Optional: `CAMPAIGN_TWEET_ID`. For link-X: `X_OAUTH2_CLIENT_ID`, `X_OAUTH2_CLIENT_SECRET`.
+**X (Twitter) API v2 / pay-per-use**: This app uses **X API v2** only (`/2/tweets/:id/retweeted_by`, OAuth 2.0, `/2/users/me`). The legacy free tier is deprecated; use a pay-per-use (or other) plan in the [X Developer Portal](https://developer.x.com/). To keep usage low: run **fetch-retweeters** on a cron (2–4x/day) so `repostedAt` is set in bulk; the in-app “I’ve reposted – Check” button calls the same retweeters endpoint and can hit rate limits (429) if used too often.
+
+**Base Sepolia (testnet)**: Set `USE_BASE_SEPOLIA=true` to run airdrop on Base Sepolia instead of Base mainnet. The app supports both chains; users can switch in their wallet. Use a Base Sepolia token contract for `TOKEN_ADDRESS` when testing.
 
 ## Token
 

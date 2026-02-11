@@ -179,7 +179,7 @@ export function AppGrid() {
   const baseItems: GridItem[] = [
     { id: 'appstore', name: 'App Store', url: '/store', icon: <LayoutGrid />, variant: 'yellow' },
     { id: 'wallet', name: 'Wallet', url: '/app/wallet', icon: <Wallet />, variant: 'yellow' },
-    { id: 'airdrop', name: 'Claw Airdrop', url: '/app/airdrop', icon: <Gift />, variant: 'yellow' },
+    { id: 'airdrop', name: 'Airdrop', url: '/app/airdrop', icon: <Gift />, variant: 'yellow' },
   ]
 
   const installedItems = installedApps

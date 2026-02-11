@@ -20,6 +20,7 @@ model AirdropRegistration {
   twitterUsername  String?
   privyUserId      String?
   walletAddress    String
+  repostedAt       DateTime?
   airdroppedAt     DateTime?
   amount           String?
   createdAt        DateTime  @default(now())

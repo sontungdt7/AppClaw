@@ -7,10 +7,12 @@
  * Run: npx tsx scripts/batch-airdrop.ts
  */
 import { createWalletClient, http, parseAbi } from 'viem'
-import { base } from 'viem/chains'
+import { base, baseSepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { prisma } from '../lib/db'
 import { getRetweeters } from '../lib/x-api'
+
+const chain = process.env.USE_BASE_SEPOLIA === 'true' ? baseSepolia : base
 
 const AIRDROP_MAX_RECIPIENTS = 1000
 
@@ -61,7 +63,7 @@ async function main() {
   const account = privateKeyToAccount(privateKey as `0x${string}`)
   const client = createWalletClient({
     account,
-    chain: base,
+    chain,
     transport: http(),
   })
   const amountWei = BigInt(amountPerUser) * BigInt(10) ** BigInt(18)

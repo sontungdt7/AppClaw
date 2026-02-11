@@ -3,15 +3,21 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useReadContract } from 'wagmi'
 import { ArrowLeft, Wallet, Code, Upload, Key, LogOut } from 'lucide-react'
 import { useWallet } from '@/lib/wallet-context'
 
 const DEV_MODE_KEY = 'appclaw-developer-mode'
+const ERC20_ABI = [
+  { inputs: [{ name: 'account', type: 'address' }], name: 'balanceOf', outputs: [{ type: 'uint256' }], stateMutability: 'view', type: 'function' },
+  { inputs: [], name: 'decimals', outputs: [{ type: 'uint8' }], stateMutability: 'view', type: 'function' },
+] as const
 
 export function WalletMiniApp() {
   const { address, disconnect } = useWallet()
   const router = useRouter()
   const [devMode, setDevMode] = useState(false)
+  const [tokenConfig, setTokenConfig] = useState<{ tokenAddress: string; symbol: string; decimals: number; chainId: number } | null>(null)
 
   useEffect(() => {
     try {
@@ -20,6 +26,29 @@ export function WalletMiniApp() {
       setDevMode(false)
     }
   }, [])
+
+  useEffect(() => {
+    fetch('/api/airdrop/config')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.tokenAddress)
+          setTokenConfig({
+            tokenAddress: d.tokenAddress,
+            symbol: d.symbol ?? 'APPCLAW',
+            decimals: d.decimals ?? 18,
+            chainId: d.chainId ?? 8453,
+          })
+      })
+      .catch(() => {})
+  }, [])
+
+  const { data: balance, isPending, isError } = useReadContract({
+    address: tokenConfig?.tokenAddress as `0x${string}` | undefined,
+    abi: ERC20_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address as `0x${string}`] : undefined,
+    chainId: tokenConfig?.chainId,
+  })
 
   const toggleDevMode = () => {
     const next = !devMode
@@ -57,6 +86,19 @@ export function WalletMiniApp() {
             <div className="rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground mb-1">Your wallet</p>
               <p className="font-mono text-sm break-all">{address}</p>
+            </div>
+          )}
+
+          {tokenConfig && address && (
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs text-muted-foreground mb-1">Airdrop token balance</p>
+              <p className="text-2xl font-bold text-primary">
+                {isError
+                  ? 'Unable to load'
+                  : isPending || balance === undefined
+                    ? 'Loading…'
+                    : `${Number(balance) / 10 ** tokenConfig.decimals} ${tokenConfig.symbol}`}
+              </p>
             </div>
           )}
 

@@ -1,8 +1,7 @@
 'use client'
 
 import { useCallback, useEffect } from 'react'
-import { useAccount, useSignMessage, useSendTransaction } from 'wagmi'
-import { base } from 'viem/chains'
+import { useAccount, useChainId, useSignMessage, useSendTransaction } from 'wagmi'
 import { isBridgeRequest, sendToIframe, type BridgeRequest } from '@/lib/wallet-bridge'
 
 type WalletBridgeProviderProps = {
@@ -16,6 +15,7 @@ export function WalletBridgeProvider({ iframeRef, children }: WalletBridgeProvid
 
 function WalletBridgeProviderInner({ iframeRef, children }: WalletBridgeProviderProps) {
   const { address, isConnected } = useAccount()
+  const chainId = useChainId()
   const { signMessageAsync } = useSignMessage()
   const { sendTransactionAsync } = useSendTransaction()
 
@@ -72,7 +72,7 @@ function WalletBridgeProviderInner({ iframeRef, children }: WalletBridgeProvider
             const hash = await sendTransactionAsync({
               to: to as `0x${string}`,
               value: BigInt(value),
-              chainId: base.id,
+              chainId,
               ...(data && { data: data as `0x${string}` }),
               ...(gasLimit && { gas: BigInt(gasLimit) }),
             })
@@ -100,7 +100,7 @@ function WalletBridgeProviderInner({ iframeRef, children }: WalletBridgeProvider
         })
       }
     },
-    [isConnected, address, signMessageAsync, sendTransactionAsync]
+    [isConnected, address, chainId, signMessageAsync, sendTransactionAsync]
   )
 
   useEffect(() => {

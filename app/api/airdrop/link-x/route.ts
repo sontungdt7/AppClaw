@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
 
   const clientId = process.env.X_OAUTH2_CLIENT_ID
   if (!clientId) {
-    return NextResponse.json({ error: 'X OAuth not configured' }, { status: 500 })
+    return NextResponse.redirect(
+      new URL('/app/airdrop?error=oauth_not_configured', request.url)
+    )
   }
 
   const verifier = base64UrlEncode(crypto.randomBytes(32))
