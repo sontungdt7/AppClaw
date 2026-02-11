@@ -18,6 +18,14 @@ export function AirdropMiniApp() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<AirdropStatus | null>(null)
   const [message, setMessage] = useState<'linked' | 'error' | null>(null)
+  const [registeredCount, setRegisteredCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/airdrop/registered')
+      .then((r) => r.json())
+      .then((d) => setRegisteredCount(typeof d?.count === 'number' ? d.count : 0))
+      .catch(() => setRegisteredCount(null))
+  }, [])
 
   const fetchStatus = useCallback(() => {
     if (!address) return
@@ -43,10 +51,15 @@ export function AirdropMiniApp() {
   if (!isConnected || !address) {
     return (
       <div className="container mx-auto max-w-xl px-4 py-6">
-        <div className="rounded-lg border border-border bg-card p-6">
-          <p className="text-sm text-muted-foreground">
-            Connect your Porto wallet to claim the airdrop.
-          </p>
+        <div className="rounded-lg border border-border bg-card p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Connect your Porto wallet to claim the airdrop.
+            </p>
+            {registeredCount !== null && (
+              <span className="text-sm text-muted-foreground">Registered: {registeredCount.toLocaleString()}</span>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -61,8 +74,11 @@ export function AirdropMiniApp() {
           <div className="rounded-full bg-primary/20 p-3">
             <Gift className="h-6 w-6 text-primary" />
           </div>
-          <div>
+          <div className="flex-1">
             <h2 className="font-semibold text-lg">$APPCLAW Airdrop</h2>
+            {registeredCount !== null && (
+              <p className="text-sm text-muted-foreground">Registered: {registeredCount.toLocaleString()}</p>
+            )}
           </div>
         </div>
 
@@ -87,7 +103,7 @@ export function AirdropMiniApp() {
             href={linkXUrl}
             className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
           >
-            Link X/Twitter to Claim
+            Link X/Twitter to register for Airdrop
           </a>
         ) : status.airdroppedAt ? (
           <div className="space-y-3">
