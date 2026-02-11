@@ -2,7 +2,7 @@
 
 App store for mini apps. **App For Human. Build By Agent.**
 
-PWA super app with **Porto** wallet on Base. Users connect with Porto to use the app. Airdrop: users link their X account in the airdrop mini app, repost the campaign tweet; server verifies reposts and airdrops APPCLAW to their Porto wallet (max 1,000 users in the first campaign).
+PWA super app with **Porto** wallet on Base. Users connect with Porto to use the app. Airdrop: users link their X account; the server runs batch airdrops every hour to eligible users (linked X + reposted). Capped at 300 users; campaign ends after 3 days.
 
 ## Setup
 
@@ -27,19 +27,21 @@ PWA super app with **Porto** wallet on Base. Users connect with Porto to use the
 npm run dev
 ```
 
+## PWA update prompt
+
+When you deploy a new version (e.g. to Vercel), users who have AppClaw open or installed see an **Update available** screen and can tap **Update** to reload and get the latest version. The app polls `GET /api/version` every 5 minutes and on tab focus; the version is taken from `VERCEL_GIT_COMMIT_SHA` on Vercel, or `BUILD_ID` / `NEXT_BUILD_ID` if set on other hosts.
+
 ## Campaign & Airdrop (Porto + link X)
 
 1. **Start campaign**: `POST /api/campaign/start` — Posts the campaign tweet via X API, stores tweet ID. (Requires X API v2 write access.)
 
-2. **User flow**: User connects **Porto** wallet to use the app. In the **Airdrop** mini app they (1) **Link X to claim** (OAuth with X), (2) **Repost** the campaign tweet. Server verifies reposts and airdrops to their Porto wallet.
+2. **User flow**: User connects **Porto** wallet, opens Airdrop mini app, **Links X** (OAuth). They repost the campaign tweet to be eligible. Server runs batch airdrops hourly; users see congratulations when sent.
 
-3. **Cron – fetch retweeters**: `npx tsx scripts/fetch-retweeters.ts` — Syncs Twitter usernames for existing registrations who retweeted. Run 2–4x per day. Requires: `TWITTER_BEARER_TOKEN`, `DATABASE_URL`.
-
-4. **Cron – batch airdrop**: `npx tsx scripts/batch-airdrop.ts` — Fetches retweeters, finds registered users (linked X) who reposted and not yet airdropped, sends APPCLAW to their Porto wallet. **Capped at 1,000 recipients** for the first campaign. Requires: `TWITTER_BEARER_TOKEN`, `PRIVATE_KEY`, `TOKEN_ADDRESS`, `DATABASE_URL`.
+3. **Cron – every hour**: Run (1) `npx tsx scripts/fetch-retweeters.ts` then (2) `npx tsx scripts/batch-airdrop.ts`. Fetch-retweeters syncs who reposted; batch-airdrop sends to eligible wallets (linked X + reposted, not yet airdropped). **Capped at 300 recipients**; campaign ends after 3 days from start. Requires: `TWITTER_BEARER_TOKEN`, `PRIVATE_KEY`, `TOKEN_ADDRESS`, `DATABASE_URL`.
 
 **Airdrop link-X OAuth** (for “Link X to claim” in the airdrop mini app): Set `X_OAUTH2_CLIENT_ID` and `X_OAUTH2_CLIENT_SECRET` from the [X Developer Portal](https://developer.x.com/) (OAuth 2.0 with PKCE). Callback URL: `https://your-domain/api/airdrop/link-x-callback`.
 
-**X (Twitter) API v2 / pay-per-use**: This app uses **X API v2** only (`/2/tweets/:id/retweeted_by`, OAuth 2.0, `/2/users/me`). The legacy free tier is deprecated; use a pay-per-use (or other) plan in the [X Developer Portal](https://developer.x.com/). To keep usage low: run **fetch-retweeters** on a cron (2–4x/day) so `repostedAt` is set in bulk; the in-app “I’ve reposted – Check” button calls the same retweeters endpoint and can hit rate limits (429) if used too often.
+**X (Twitter) API v2 / pay-per-use**: This app uses **X API v2** only (`/2/tweets/:id/retweeted_by`, OAuth 2.0, `/2/users/me`). The legacy free tier is deprecated; use a pay-per-use (or other) plan in the [X Developer Portal](https://developer.x.com/). To keep usage low: run **fetch-retweeters** hourly before batch-airdrop to sync repost status.
 
 **Base Sepolia (testnet)**: Set `USE_BASE_SEPOLIA=true` to run airdrop on Base Sepolia instead of Base mainnet. The app supports both chains; users can switch in their wallet. Use a Base Sepolia token contract for `TOKEN_ADDRESS` when testing.
 

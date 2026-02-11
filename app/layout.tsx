@@ -5,6 +5,7 @@ import { Providers } from '@/components/providers'
 import { AuthGate } from '@/components/auth-gate'
 import { Footer } from '@/components/footer'
 import { InstallPrompt } from '@/components/install-prompt'
+import { UpdatePrompt } from '@/components/update-prompt'
 
 const geist = Geist({
   variable: '--font-geist-sans',
@@ -47,6 +48,7 @@ export default function RootLayout({
             </div>
           </AuthGate>
           <InstallPrompt />
+          <UpdatePrompt />
         </Providers>
       </body>
     </html>

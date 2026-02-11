@@ -1,7 +1,8 @@
 /**
- * Batch airdrop APPCLAW to eligible AirdropRegistrations.
+ * Batch airdrop to eligible AirdropRegistrations.
  * Eligibility: (1) linked X in airdrop app, (2) reposted campaign tweet, (3) not yet airdropped.
- * First campaign capped at 1000 recipients.
+ * Capped at 300 recipients. Campaign ends after 3 days from start.
+ * Run hourly via cron: fetch-retweeters.ts then batch-airdrop.ts
  *
  * Requires: TWITTER_BEARER_TOKEN, PRIVATE_KEY, TOKEN_ADDRESS, DATABASE_URL
  * Run: npx tsx scripts/batch-airdrop.ts
@@ -14,7 +15,8 @@ import { getRetweeters } from '../lib/x-api'
 
 const chain = process.env.USE_BASE_SEPOLIA === 'true' ? baseSepolia : base
 
-const AIRDROP_MAX_RECIPIENTS = 1000
+const AIRDROP_MAX_RECIPIENTS = 300
+const CAMPAIGN_DURATION_DAYS = 3
 
 const ERC20_ABI = parseAbi([
   'function transfer(address to, uint256 amount) returns (bool)',
@@ -40,6 +42,23 @@ async function main() {
     process.exit(1)
   }
 
+  if (campaign) {
+    const endAt = new Date(campaign.createdAt)
+    endAt.setDate(endAt.getDate() + CAMPAIGN_DURATION_DAYS)
+    if (new Date() > endAt) {
+      console.log('Campaign ended (3 days passed). No more airdrops.')
+      process.exit(0)
+    }
+  } else if (process.env.CAMPAIGN_START_DATE) {
+    const start = new Date(process.env.CAMPAIGN_START_DATE)
+    const endAt = new Date(start)
+    endAt.setDate(endAt.getDate() + CAMPAIGN_DURATION_DAYS)
+    if (new Date() > endAt) {
+      console.log('Campaign ended (3 days passed). No more airdrops.')
+      process.exit(0)
+    }
+  }
+
   const retweeterIds = new Set((await getRetweeters(tweetId)).map((u) => u.id))
   console.log(`${retweeterIds.size} retweeters`)
 
@@ -58,7 +77,7 @@ async function main() {
   const capRemaining = Math.max(0, AIRDROP_MAX_RECIPIENTS - alreadyAirdropped)
   const toSend = pending.slice(0, capRemaining)
 
-  console.log(`Airdropping ${amountPerUser} APPCLAW to ${toSend.length} addresses (cap ${AIRDROP_MAX_RECIPIENTS}, ${alreadyAirdropped} already sent)`)
+  console.log(`Airdropping ${amountPerUser} tokens to ${toSend.length} addresses (cap ${AIRDROP_MAX_RECIPIENTS}, ${alreadyAirdropped} already sent)`)
 
   const account = privateKeyToAccount(privateKey as `0x${string}`)
   const client = createWalletClient({
