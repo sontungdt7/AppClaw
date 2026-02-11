@@ -13,6 +13,8 @@ const ERC20_ABI = [
   { inputs: [], name: 'decimals', outputs: [{ type: 'uint8' }], stateMutability: 'view', type: 'function' },
 ] as const
 
+const isDevelopment = process.env.NEXT_PUBLIC_ENVIRONMENT === 'DEVELOPMENT'
+
 export function WalletMiniApp() {
   const { address, disconnect } = useWallet()
   const router = useRouter()
@@ -20,6 +22,7 @@ export function WalletMiniApp() {
   const [tokenConfig, setTokenConfig] = useState<{ tokenAddress: string; symbol: string; decimals: number; chainId: number } | null>(null)
 
   useEffect(() => {
+    if (!isDevelopment) return
     try {
       setDevMode(localStorage.getItem(DEV_MODE_KEY) === '1')
     } catch {
@@ -103,39 +106,43 @@ export function WalletMiniApp() {
           )}
 
           <div className="rounded-xl border border-border bg-card divide-y divide-border">
-            <button
-              type="button"
-              onClick={toggleDevMode}
-              className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm text-foreground hover:bg-muted"
-            >
-              <span className="flex items-center gap-2">
-                <Code className="h-4 w-4 text-muted-foreground" />
-                Developer mode
-              </span>
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                  devMode ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                }`}
-              >
-                {devMode ? 'ON' : 'OFF'}
-              </span>
-            </button>
-            {devMode && (
+            {isDevelopment && (
               <>
-                <Link
-                  href="/submit"
-                  className="flex w-full items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-muted"
+                <button
+                  type="button"
+                  onClick={toggleDevMode}
+                  className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm text-foreground hover:bg-muted"
                 >
-                  <Upload className="h-4 w-4 text-muted-foreground" />
-                  Submit mini app
-                </Link>
-                <Link
-                  href="/account-association"
-                  className="flex w-full items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-muted"
-                >
-                  <Key className="h-4 w-4 text-muted-foreground" />
-                  Account association
-                </Link>
+                  <span className="flex items-center gap-2">
+                    <Code className="h-4 w-4 text-muted-foreground" />
+                    Developer mode
+                  </span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      devMode ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                    }`}
+                  >
+                    {devMode ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                {devMode && (
+                  <>
+                    <Link
+                      href="/submit"
+                      className="flex w-full items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-muted"
+                    >
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      Submit mini app
+                    </Link>
+                    <Link
+                      href="/account-association"
+                      className="flex w-full items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-muted"
+                    >
+                      <Key className="h-4 w-4 text-muted-foreground" />
+                      Account association
+                    </Link>
+                  </>
+                )}
               </>
             )}
             <button

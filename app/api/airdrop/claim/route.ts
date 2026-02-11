@@ -4,7 +4,7 @@ import { base, baseSepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { prisma } from '@/lib/db'
 
-const airdropChain = process.env.USE_BASE_SEPOLIA === 'true' ? baseSepolia : base
+const airdropChain = process.env.ENVIRONMENT === 'DEVELOPMENT' ? baseSepolia : base
 
 const ERC20_ABI = parseAbi([
   'function transfer(address to, uint256 amount) returns (bool)',

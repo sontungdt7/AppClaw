@@ -13,7 +13,8 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { prisma } from '../lib/db'
 import { getRetweeters } from '../lib/x-api'
 
-const chain = process.env.USE_BASE_SEPOLIA === 'true' ? baseSepolia : base
+const isDevelopment = process.env.ENVIRONMENT === 'DEVELOPMENT'
+const chain = isDevelopment ? baseSepolia : base
 
 const AIRDROP_MAX_RECIPIENTS = 300
 const CAMPAIGN_DURATION_DAYS = 3

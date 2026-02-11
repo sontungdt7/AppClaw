@@ -14,7 +14,10 @@ PWA super app with **Porto** wallet on Base. Users connect with Porto to use the
 2. Add `.env`:
    ```
    DATABASE_URL="file:./dev.db"
+   ENVIRONMENT=DEVELOPMENT
+   NEXT_PUBLIC_ENVIRONMENT=DEVELOPMENT
    ```
+   Use `ENVIRONMENT=PRODUCTION` and `NEXT_PUBLIC_ENVIRONMENT=PRODUCTION` for production (Base mainnet, no Developer mode in Wallet).
 
 3. Initialize database:
    ```bash
@@ -43,7 +46,10 @@ When you deploy a new version (e.g. to Vercel), users who have AppClaw open or i
 
 **X (Twitter) API v2 / pay-per-use**: This app uses **X API v2** only (`/2/tweets/:id/retweeted_by`, OAuth 2.0, `/2/users/me`). The legacy free tier is deprecated; use a pay-per-use (or other) plan in the [X Developer Portal](https://developer.x.com/). To keep usage low: run **fetch-retweeters** hourly before batch-airdrop to sync repost status.
 
-**Base Sepolia (testnet)**: Set `USE_BASE_SEPOLIA=true` to run airdrop on Base Sepolia instead of Base mainnet. The app supports both chains; users can switch in their wallet. Use a Base Sepolia token contract for `TOKEN_ADDRESS` when testing.
+**Environment**: Set `ENVIRONMENT=DEVELOPMENT` or `ENVIRONMENT=PRODUCTION` (and `NEXT_PUBLIC_ENVIRONMENT` to the same value so the Wallet UI can show/hide Developer mode).
+
+- **DEVELOPMENT**: Airdrop and APIs use **Base Sepolia**; Wallet shows **Developer mode** (Submit mini app, Account association). Use a Base Sepolia token for `TOKEN_ADDRESS` when testing.
+- **PRODUCTION**: Airdrop and APIs use **Base** mainnet; Wallet does **not** show Developer mode.
 
 ## Token
 

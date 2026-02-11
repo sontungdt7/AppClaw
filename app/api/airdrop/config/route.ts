@@ -12,7 +12,7 @@ export async function GET() {
   const symbol = process.env.AIRDROP_TOKEN_SYMBOL ?? 'APPCLAW'
   const decimals = parseInt(process.env.AIRDROP_TOKEN_DECIMALS ?? '18', 10)
   const amount = process.env.AIRDROP_AMOUNT ?? '1000'
-  const chainId = process.env.USE_BASE_SEPOLIA === 'true' ? BASE_SEPOLIA_ID : BASE_MAINNET_ID
+  const chainId = process.env.ENVIRONMENT === 'DEVELOPMENT' ? BASE_SEPOLIA_ID : BASE_MAINNET_ID
 
   if (!tokenAddress) {
     return NextResponse.json({ tokenAddress: null, symbol, decimals, amount, chainId })
