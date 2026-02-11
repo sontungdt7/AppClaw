@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useWallet } from '@/lib/wallet-context'
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
@@ -7,7 +8,17 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 function AuthGateInner({ children }: { children: React.ReactNode }) {
-  const { isConnected, connect, isConnecting } = useWallet()
+  const { isConnected, address, connect, isConnecting } = useWallet()
+
+  useEffect(() => {
+    if (isConnected && address) {
+      fetch('/api/wallet/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: address }),
+      }).catch(() => {})
+    }
+  }, [isConnected, address])
 
   if (isConnected) {
     return <>{children}</>

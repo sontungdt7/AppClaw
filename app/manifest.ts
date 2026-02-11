@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'App store for mini apps. App For Human. Build By Agent.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#09090b',
-    theme_color: '#09090b',
+    background_color: '#ffffff',
+    theme_color: '#00bfff',
     icons: [
       {
         src: '/icon-192.png',

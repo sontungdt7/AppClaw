@@ -27,6 +27,12 @@ model AirdropRegistration {
   @@unique([twitterUserId])
 }
 
+model WalletSignup {
+  id            String   @id @default(cuid())
+  walletAddress String   @unique
+  createdAt     DateTime @default(now())
+}
+
 model MiniApp {
   id          String   @id @default(cuid())
   name        String

@@ -33,9 +33,9 @@ export function DepositMiniApp() {
           </p>
 
           {isConnected && address ? (
-            <div className="rounded-lg bg-[#1a2e1a] border border-[#2a3a2a] p-4 flex items-center justify-between gap-3">
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-4 flex items-center justify-between gap-3">
               <p
-                className="text-[#bef264] font-mono text-sm break-all flex-1 min-w-0"
+                className="text-primary font-mono text-sm break-all flex-1 min-w-0"
                 style={{ wordBreak: 'break-all' }}
               >
                 {address}

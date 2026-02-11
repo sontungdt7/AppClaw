@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 
-const KHAKI = '#8b8b5a'
 
 export function FeedbackMiniApp() {
   const [contact, setContact] = useState('')
@@ -35,14 +34,14 @@ export function FeedbackMiniApp() {
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             placeholder="Contact (Twitter, TG, Email, etc)"
-            className="w-full rounded-lg border border-[#3a3a2e] bg-[#1e1e18] px-4 py-3 text-foreground placeholder:text-[#9ca86b]/80 focus:outline-none focus:ring-1 focus:ring-[#9ca86b]/50"
+            className="w-full rounded-lg border border-border bg-muted px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <textarea
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             placeholder="Type your feedback..."
             rows={8}
-            className="w-full rounded-lg border border-[#3a3a2e] bg-[#1e1e18] px-4 py-3 text-foreground placeholder:text-[#9ca86b]/80 focus:outline-none focus:ring-1 focus:ring-[#9ca86b]/50 resize-none text-lg"
+            className="w-full rounded-lg border border-border bg-muted px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none text-lg"
             style={{ fontFamily: 'var(--font-vt323), monospace' }}
           />
         </div>
@@ -52,7 +51,7 @@ export function FeedbackMiniApp() {
             disabled={sending || !contact.trim() || !feedback.trim()}
             className="w-full py-4 rounded-lg font-semibold uppercase tracking-wider text-white disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: KHAKI,
+              backgroundColor: 'var(--primary)',
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
           >

@@ -30,14 +30,14 @@ export const metadata: Metadata = {
 export const viewport = {
   width: 'device-width' as const,
   initialScale: 1,
-  themeColor: '#09090b',
+  themeColor: '#00bfff',
 }
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={`${geist.variable} ${geistMono.variable} ${vt323.variable} font-sans antialiased`}>
         <Providers>
           <AuthGate>

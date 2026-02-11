@@ -40,6 +40,14 @@ export function removeInstalled(id: string) {
 
 export const MINI_APPS: MiniApp[] = [
   {
+    id: 'wallet',
+    name: 'Wallet',
+    description: 'View wallet, settings, and total users signed up.',
+    imageUrl: '/logo.png',
+    url: '/app/wallet',
+    tags: ['For Human. By Agent.'],
+  },
+  {
     id: 'airdrop',
     name: 'Airdrop',
     description: 'Register for APPCLAW airdrop. Install PWA, connect wallet, tweet in format.',

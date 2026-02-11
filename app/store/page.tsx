@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useQuery } from '@tanstack/react-query'
-import { Header } from '@/components/header'
+import { ArrowLeft } from 'lucide-react'
 import { getInstalledIds, addInstalled, STORE_BROWSE_BUILTINS, type MiniApp } from '@/lib/miniapps'
 
 type StoreApp = MiniApp & { devBalance?: string }
@@ -85,24 +85,27 @@ export default function StorePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+    <div className="fixed inset-0 flex flex-col bg-background z-50">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border shrink-0">
+        <Link
+          href="/"
+          className="flex items-center justify-center size-10 -ml-2 rounded-full hover:bg-muted text-foreground"
+          aria-label="Back to home"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="font-bold text-lg">App Store</h1>
+      </div>
 
-      <div className="flex-1 flex flex-col min-h-0">
-        <div className="px-4 py-3 border-b border-border">
-          <h1 className="font-bold text-lg">App Store</h1>
-        </div>
-
-        <div className="flex-1 overflow-y-auto divide-y divide-border/50">
-          {apps.map((app) => (
-            <AppRow
-              key={app.id}
-              app={app}
-              onGet={() => handleGet(app.id)}
-              isInstalled={installedIds.includes(app.id)}
-            />
-          ))}
-        </div>
+      <div className="flex-1 overflow-y-auto divide-y divide-border/50 min-h-0">
+        {apps.map((app) => (
+          <AppRow
+            key={app.id}
+            app={app}
+            onGet={() => handleGet(app.id)}
+            isInstalled={installedIds.includes(app.id)}
+          />
+        ))}
       </div>
     </div>
   )

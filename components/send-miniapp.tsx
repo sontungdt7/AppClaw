@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { DollarSign, ChevronDown, LayoutList, Delete } from 'lucide-react'
 
-const KHAKI = '#8b8b5a'
 
 const KEYPAD = [
   ['1', '2', '3'],
@@ -44,7 +43,7 @@ export function SendMiniApp() {
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-hidden">
       <div className="flex-1 flex flex-col px-3 py-3 min-h-0">
-        <h2 className="font-bold text-base text-[#bef264] mb-2">Send</h2>
+        <h2 className="font-bold text-base text-primary mb-2">Send</h2>
 
         <div className="rounded-lg border border-border bg-card/50 p-2.5 flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-1.5">
@@ -65,8 +64,8 @@ export function SendMiniApp() {
         </div>
 
         <div className="flex flex-col items-center gap-1 py-3">
-          <div className="size-16 rounded-lg border-2 border-[#bef264]/60 bg-[#bef264]/5 flex items-center justify-center">
-            <span className="text-base font-bold text-[#bef264]">USD</span>
+          <div className="size-16 rounded-lg border-2 border-primary/60 bg-primary/5 flex items-center justify-center">
+            <span className="text-base font-bold text-primary">USD</span>
           </div>
           <span className="text-xs text-muted-foreground">USD</span>
         </div>
@@ -79,7 +78,7 @@ export function SendMiniApp() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className={`h-1 flex-1 rounded-full ${i <= 2 ? 'bg-[#bef264]' : 'bg-muted'}`}
+                className={`h-1 flex-1 rounded-full ${i <= 2 ? 'bg-primary' : 'bg-muted'}`}
               />
             ))}
           </div>
@@ -90,7 +89,7 @@ export function SendMiniApp() {
             type="button"
             className="w-full py-2.5 rounded-lg font-semibold uppercase tracking-wider text-white/95 text-sm flex items-center justify-center"
             style={{
-              backgroundColor: KHAKI,
+              backgroundColor: 'var(--primary)',
               fontFamily: 'var(--font-vt323), monospace',
             }}
           >

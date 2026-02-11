@@ -5,10 +5,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { Gift, LayoutGrid, X } from 'lucide-react'
+import { Gift, LayoutGrid, Wallet, X } from 'lucide-react'
 import { getInstalledIds, removeInstalled, STORE_BROWSE_BUILTINS, type MiniApp } from '@/lib/miniapps'
 
-const FIRST_PARTY_IDS = new Set(['appstore', 'airdrop'])
+const FIRST_PARTY_IDS = new Set(['appstore', 'wallet', 'airdrop'])
 
 type GridItem = {
   id: string
@@ -139,7 +139,8 @@ function GridIcon({
 }
 
 function appToGridItem(app: MiniApp): GridItem {
-  const icon = app.id === 'airdrop' ? <Gift /> : undefined
+  const icon =
+    app.id === 'airdrop' ? <Gift /> : app.id === 'wallet' ? <Wallet /> : undefined
   return {
     id: app.id,
     name: app.name,
@@ -177,11 +178,12 @@ export function AppGrid() {
 
   const baseItems: GridItem[] = [
     { id: 'appstore', name: 'App Store', url: '/store', icon: <LayoutGrid />, variant: 'yellow' },
+    { id: 'wallet', name: 'Wallet', url: '/app/wallet', icon: <Wallet />, variant: 'yellow' },
     { id: 'airdrop', name: 'Claw Airdrop', url: '/app/airdrop', icon: <Gift />, variant: 'yellow' },
   ]
 
   const installedItems = installedApps
-    .filter((a) => a.id !== 'airdrop')
+    .filter((a) => a.id !== 'airdrop' && a.id !== 'wallet')
     .map(appToGridItem)
 
   const items = [...baseItems, ...installedItems]
