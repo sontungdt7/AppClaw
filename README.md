@@ -13,7 +13,7 @@ PWA super app with **Porto** wallet on Base. Users connect with Porto to use the
 
 2. Add `.env`:
    ```
-   DATABASE_URL="file:./dev.db"
+   DATABASE_URL="postgresql://..."   # Neon, local Postgres, or copy from Vercel env
    ENVIRONMENT=DEVELOPMENT
    NEXT_PUBLIC_ENVIRONMENT=DEVELOPMENT
    ```
@@ -29,6 +29,10 @@ PWA super app with **Porto** wallet on Base. Users connect with Porto to use the
 ```bash
 npm run dev
 ```
+
+## Deploy to Vercel (database required)
+
+Vercel does **not** provide a persistent database. The app uses **Postgres** (e.g. [Neon](https://neon.tech)); set `DATABASE_URL` in Vercel to your Neon (or other Postgres) connection string. The build runs `prisma db push`, so tables are created in your Neon project on deploy. After redeploying, wallet signups are stored and the user count in the header updates.
 
 ## PWA update prompt
 
