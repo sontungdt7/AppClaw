@@ -14,8 +14,17 @@ export async function GET() {
   const amount = process.env.AIRDROP_AMOUNT ?? '1000'
   const chainId = process.env.ENVIRONMENT === 'DEVELOPMENT' ? BASE_SEPOLIA_ID : BASE_MAINNET_ID
 
+  const airdropStarted = process.env.AIRDROP_STARTED === 'true'
+
   if (!tokenAddress) {
-    return NextResponse.json({ tokenAddress: null, symbol, decimals, amount, chainId })
+    return NextResponse.json({
+      tokenAddress: null,
+      symbol,
+      decimals,
+      amount,
+      chainId,
+      airdropStarted,
+    })
   }
 
   return NextResponse.json({
@@ -24,5 +33,6 @@ export async function GET() {
     decimals,
     amount,
     chainId,
+    airdropStarted,
   })
 }

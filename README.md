@@ -46,6 +46,8 @@ When you deploy a new version (e.g. to Vercel), users who have AppClaw open or i
 
 3. **Cron – every hour**: Run (1) `npx tsx scripts/fetch-retweeters.ts` then (2) `npx tsx scripts/batch-airdrop.ts`. Fetch-retweeters syncs who reposted; batch-airdrop sends to eligible wallets (linked X + reposted, not yet airdropped). **Capped at 300 recipients**; campaign ends after 3 days from start. Requires: `TWITTER_BEARER_TOKEN`, `PRIVATE_KEY`, `TOKEN_ADDRESS`, `DATABASE_URL`.
 
+**AIRDROP_STARTED** (optional): Set to `true` when the airdrop campaign is live; set to `false` (or omit) to show "Follow AppClawBot on X to get notification about Airdrop" after users link their X account instead of the normal "batch airdrop every hour" flow. AppClawBot: https://x.com/appclawbot
+
 **Airdrop link-X OAuth** (for “Link X to claim” in the airdrop mini app): Set `X_OAUTH2_CLIENT_ID` and `X_OAUTH2_CLIENT_SECRET` from the [X Developer Portal](https://developer.x.com/) (OAuth 2.0 with PKCE). Callback URL: `https://your-domain/api/airdrop/link-x-callback`.
 
 **X (Twitter) API v2 / pay-per-use**: This app uses **X API v2** only (`/2/tweets/:id/retweeted_by`, OAuth 2.0, `/2/users/me`). The legacy free tier is deprecated; use a pay-per-use (or other) plan in the [X Developer Portal](https://developer.x.com/). To keep usage low: run **fetch-retweeters** hourly before batch-airdrop to sync repost status.

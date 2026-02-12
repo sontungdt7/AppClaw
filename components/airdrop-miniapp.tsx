@@ -19,12 +19,20 @@ export function AirdropMiniApp() {
   const [status, setStatus] = useState<AirdropStatus | null>(null)
   const [message, setMessage] = useState<'linked' | 'error' | null>(null)
   const [registeredCount, setRegisteredCount] = useState<number | null>(null)
+  const [airdropStarted, setAirdropStarted] = useState<boolean>(true)
 
   useEffect(() => {
     fetch('/api/airdrop/registered')
       .then((r) => r.json())
       .then((d) => setRegisteredCount(typeof d?.count === 'number' ? d.count : 0))
       .catch(() => setRegisteredCount(null))
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/airdrop/config')
+      .then((r) => r.json())
+      .then((d) => setAirdropStarted(d?.airdropStarted === true))
+      .catch(() => setAirdropStarted(true))
   }, [])
 
   const fetchStatus = useCallback(() => {
@@ -119,6 +127,26 @@ export function AirdropMiniApp() {
             >
               View Balance
             </Link>
+          </div>
+        ) : !airdropStarted ? (
+          <div className="space-y-3">
+            {status.twitterUsername && (
+              <p className="text-sm text-muted-foreground">
+                Linked as @{status.twitterUsername}
+              </p>
+            )}
+            <p className="text-sm text-muted-foreground">
+              Follow{' '}
+              <a
+                href="https://x.com/appclawbot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary underline underline-offset-2 hover:no-underline"
+              >
+                AppClawBot
+              </a>{' '}
+              on X to get notification about Airdrop.
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
