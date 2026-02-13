@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useReadContract } from 'wagmi'
-import { ArrowLeft, Wallet, Code, Upload, Key, LogOut } from 'lucide-react'
+import { ArrowLeft, Wallet, Code, Upload, Key, LogOut, UserPlus } from 'lucide-react'
 import { useWallet } from '@/lib/wallet-context'
 
 const DEV_MODE_KEY = 'appclaw-developer-mode'
@@ -16,7 +16,7 @@ const ERC20_ABI = [
 const isDevelopment = process.env.NEXT_PUBLIC_ENVIRONMENT === 'DEVELOPMENT'
 
 export function WalletMiniApp() {
-  const { address, disconnect } = useWallet()
+  const { address, isConnected, connect, disconnect, isConnecting } = useWallet()
   const router = useRouter()
   const [devMode, setDevMode] = useState(false)
   const [tokenConfig, setTokenConfig] = useState<{ tokenAddress: string; symbol: string; decimals: number; chainId: number } | null>(null)
@@ -145,14 +145,26 @@ export function WalletMiniApp() {
                 )}
               </>
             )}
-            <button
-              type="button"
-              onClick={handleDisconnect}
-              className="flex w-full items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-muted"
-            >
-              <LogOut className="h-4 w-4 text-muted-foreground" />
-              Log out
-            </button>
+            {isConnected && address ? (
+              <button
+                type="button"
+                onClick={handleDisconnect}
+                className="flex w-full items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-muted"
+              >
+                <LogOut className="h-4 w-4 text-muted-foreground" />
+                Log out
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => connect()}
+                disabled={isConnecting}
+                className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                <UserPlus className="h-4 w-4" />
+                {isConnecting ? 'Connecting…' : 'Login/SignUp'}
+              </button>
+            )}
           </div>
         </div>
       </div>

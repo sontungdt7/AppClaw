@@ -14,7 +14,7 @@ type AirdropStatus = {
 }
 
 export function AirdropMiniApp() {
-  const { isConnected, address } = useWallet()
+  const { isConnected, address, connect, isConnecting } = useWallet()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<AirdropStatus | null>(null)
   const [message, setMessage] = useState<'linked' | 'error' | null>(null)
@@ -59,15 +59,23 @@ export function AirdropMiniApp() {
   if (!isConnected || !address) {
     return (
       <div className="container mx-auto max-w-xl px-4 py-6">
-        <div className="rounded-lg border border-border bg-card p-6 space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Connect your Porto wallet to claim the airdrop.
-            </p>
-            {registeredCount !== null && (
-              <span className="text-sm text-muted-foreground">Registered: {registeredCount.toLocaleString()}</span>
-            )}
+        <div className="rounded-lg border border-border bg-card p-6 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-primary/20 p-3">
+              <Gift className="h-6 w-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h2 className="font-semibold text-lg">$APPCLAW Airdrop</h2>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => connect()}
+            disabled={isConnecting}
+            className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto disabled:opacity-50"
+          >
+            {isConnecting ? 'Connecting…' : 'Login/Create Wallet to receive Airdrop'}
+          </button>
         </div>
       </div>
     )
@@ -84,9 +92,6 @@ export function AirdropMiniApp() {
           </div>
           <div className="flex-1">
             <h2 className="font-semibold text-lg">$APPCLAW Airdrop</h2>
-            {registeredCount !== null && (
-              <p className="text-sm text-muted-foreground">Registered: {registeredCount.toLocaleString()}</p>
-            )}
           </div>
         </div>
 
