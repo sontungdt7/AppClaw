@@ -4,7 +4,7 @@ import { porto } from 'wagmi/connectors'
 import { Dialog, Mode } from 'porto'
 
 const PORTO_POPUP_SIZE_MOBILE = { width: 360, height: 282 } // Porto default
-const PORTO_POPUP_SIZE_DESKTOP = { width: 400, height: 680 }
+const PORTO_POPUP_SIZE_DESKTOP = { width: 400, height: 780 }
 
 function getPortoPopupSize() {
   if (typeof window === 'undefined') return PORTO_POPUP_SIZE_DESKTOP

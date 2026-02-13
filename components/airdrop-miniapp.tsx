@@ -106,13 +106,28 @@ export function AirdropMiniApp() {
           </p>
         )}
 
-        {!status?.linked ? (
+        {!status?.linked && airdropStarted ? (
           <a
             href={linkXUrl}
             className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
           >
             Link X/Twitter to register for Airdrop
           </a>
+        ) : !status?.linked && !airdropStarted ? (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Follow{' '}
+              <a
+                href="https://x.com/appclawbot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary underline underline-offset-2 hover:no-underline"
+              >
+                AppClawBot
+              </a>{' '}
+              on X to get update about Airdrop.
+            </p>
+          </div>
         ) : status.airdroppedAt ? (
           <div className="space-y-3">
             <p className="text-lg font-semibold text-primary">
@@ -145,7 +160,7 @@ export function AirdropMiniApp() {
               >
                 AppClawBot
               </a>{' '}
-              on X to get notification about Airdrop.
+              on X to get update about Airdrop.
             </p>
           </div>
         ) : (
