@@ -128,13 +128,13 @@ export function AirdropMiniApp() {
               on X to get update about Airdrop.
             </p>
           </div>
-        ) : status.airdroppedAt ? (
+        ) : status?.airdroppedAt ? (
           <div className="space-y-3">
             <p className="text-lg font-semibold text-primary">
               Congratulations! Your airdrop has been sent.
             </p>
             <p className="text-sm text-muted-foreground">
-              Check your Porto wallet for {status.amount ?? '1000'} tokens.
+              Check your Porto wallet for {status?.amount ?? '1000'} tokens.
             </p>
             <Link
               href="/app/wallet"
@@ -145,9 +145,9 @@ export function AirdropMiniApp() {
           </div>
         ) : !airdropStarted ? (
           <div className="space-y-3">
-            {status.twitterUsername && (
+            {status?.twitterUsername && (
               <p className="text-sm text-muted-foreground">
-                Linked as @{status.twitterUsername}
+                Linked as @{status?.twitterUsername}
               </p>
             )}
             <p className="text-sm text-muted-foreground">
@@ -165,9 +165,9 @@ export function AirdropMiniApp() {
           </div>
         ) : (
           <div className="space-y-2">
-            {status.twitterUsername && (
+            {status?.twitterUsername && (
               <p className="text-sm text-muted-foreground">
-                Linked as @{status.twitterUsername}
+                Linked as @{status?.twitterUsername}
               </p>
             )}
             <p className="text-sm text-muted-foreground">
