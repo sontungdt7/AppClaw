@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft } from 'lucide-react'
-import { getInstalledIds, addInstalled, STORE_BROWSE_BUILTINS, type MiniApp } from '@/lib/miniapps'
+import { getInstalledIds, addInstalled, ALWAYS_ON_HOME_IDS, STORE_BROWSE_BUILTINS, type MiniApp } from '@/lib/miniapps'
 
 type StoreApp = MiniApp & { devBalance?: string }
 
@@ -103,7 +103,7 @@ export default function StorePage() {
             key={app.id}
             app={app}
             onGet={() => handleGet(app.id)}
-            isInstalled={installedIds.includes(app.id)}
+            isInstalled={installedIds.includes(app.id) || ALWAYS_ON_HOME_IDS.includes(app.id)}
           />
         ))}
       </div>

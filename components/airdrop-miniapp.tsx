@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Gift } from 'lucide-react'
+import { Gift, UserPlus } from 'lucide-react'
 import { useWallet } from '@/lib/wallet-context'
 import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -68,14 +68,20 @@ export function AirdropMiniApp() {
               <h2 className="font-semibold text-lg">$APPCLAW Airdrop</h2>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => connect()}
-            disabled={isConnecting}
-            className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto disabled:opacity-50"
-          >
-            {isConnecting ? 'Connecting…' : 'Login/Create Wallet to receive Airdrop'}
-          </button>
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => connect()}
+              disabled={isConnecting}
+              className="inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto disabled:opacity-50"
+            >
+              <UserPlus className="h-4 w-4" />
+              {isConnecting ? 'Connecting…' : 'Login/Create Wallet to receive Airdrop'}
+            </button>
+            <p className="text-xs text-muted-foreground">
+              We use Porto wallet library from Paradigm.
+            </p>
+          </div>
         </div>
       </div>
     )

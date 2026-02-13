@@ -11,6 +11,9 @@ export type MiniApp = {
 export const INSTALLED_KEY = 'appclaw-installed-apps'
 export const DEFAULT_INSTALLED = ['deposit', 'feedback', 'send', 'airdrop']
 
+/** Apps always on home screen (never show Get in store) */
+export const ALWAYS_ON_HOME_IDS = ['wallet', 'airdrop']
+
 export function getInstalledIds(): string[] {
   if (typeof window === 'undefined') return DEFAULT_INSTALLED
   try {
