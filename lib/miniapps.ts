@@ -62,7 +62,9 @@ export const MINI_APPS: MiniApp[] = [
     id: 'fomo4d',
     name: 'Fomo4D',
     description: 'Multiplayer Onchain Battle Arena.',
-    imageUrl: '/icons/fomo4d.svg',
+    imageUrl: process.env.NEXT_PUBLIC_FOMO4D_APP_URL
+      ? `${process.env.NEXT_PUBLIC_FOMO4D_APP_URL.replace(/\/$/, '')}/icon.svg`
+      : '/icons/fomo4d.svg',
     url: process.env.NEXT_PUBLIC_FOMO4D_APP_URL || 'http://localhost:3002',
     tags: ['Coming Soon'],
   },

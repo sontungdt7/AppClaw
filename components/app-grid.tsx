@@ -182,7 +182,7 @@ export function AppGrid() {
     { id: 'wallet', name: 'Wallet', url: '/app/wallet', icon: <Wallet />, variant: 'yellow' },
     { id: 'airdrop', name: 'Airdrop', url: '/app/airdrop', icon: <Gift />, variant: 'yellow' },
     ...(fomo4dApp
-      ? [{ id: 'fomo4d', name: 'Fomo4D', url: fomo4dApp.url, imageUrl: '/icons/fomo4d.svg', variant: 'yellow' as const }]
+      ? [{ id: 'fomo4d', name: 'Fomo4D', url: fomo4dApp.url, imageUrl: fomo4dApp.imageUrl, variant: 'yellow' as const }]
       : []),
   ]
 
