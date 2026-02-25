@@ -12,7 +12,7 @@ export const INSTALLED_KEY = 'appclaw-installed-apps'
 export const DEFAULT_INSTALLED = ['deposit', 'feedback', 'send', 'airdrop']
 
 /** Apps always on home screen (never show Get in store) */
-export const ALWAYS_ON_HOME_IDS = ['wallet', 'airdrop']
+export const ALWAYS_ON_HOME_IDS = ['wallet', 'airdrop', 'fomo4d']
 
 export function getInstalledIds(): string[] {
   if (typeof window === 'undefined') return DEFAULT_INSTALLED
@@ -57,6 +57,14 @@ export const MINI_APPS: MiniApp[] = [
     imageUrl: '/logo.png',
     url: '/app/airdrop',
     tags: ['For Human. By Agent.'],
+  },
+  {
+    id: 'fomo4d',
+    name: 'Fomo4D',
+    description: 'Multiplayer Onchain Battle Arena.',
+    imageUrl: '/icons/fomo4d.svg',
+    url: process.env.NEXT_PUBLIC_FOMO4D_APP_URL || 'http://localhost:3002',
+    tags: ['Coming Soon'],
   },
 ]
 
