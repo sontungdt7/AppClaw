@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Gift, Wallet } from 'lucide-react'
 import { getInstalledIds, addInstalled, ALWAYS_ON_HOME_IDS, STORE_BROWSE_BUILTINS, type MiniApp } from '@/lib/miniapps'
 
 type StoreApp = MiniApp & { devBalance?: string }
@@ -22,15 +22,18 @@ function AppRow({
     ? `/app/view?url=${encodeURIComponent(app.url)}&title=${encodeURIComponent(app.name)}`
     : app.url
 
+  const iconEl = app.id === 'wallet' ? <Wallet className="size-6 text-primary-foreground stroke-[2.5]" /> : app.id === 'airdrop' ? <Gift className="size-6 text-primary-foreground stroke-[2.5]" /> : null
+  const showIcon = iconEl !== null
+
   return (
     <div className="flex items-center gap-3 py-3 px-4 border-b border-border/50">
-      <div className="relative size-12 rounded-lg overflow-hidden bg-muted shrink-0">
-        {app.imageUrl?.startsWith('http') ? (
+      <div className="relative size-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-primary">
+        {showIcon ? (
+          iconEl
+        ) : app.imageUrl ? (
           <Image src={app.imageUrl} alt={app.name} fill className="object-cover" unoptimized />
         ) : (
-          <div className="size-full bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">{app.name.slice(0, 1)}</span>
-          </div>
+          <span className="text-primary-foreground font-bold text-sm">{app.name.slice(0, 1)}</span>
         )}
       </div>
       <div className="min-w-0 flex-1">
