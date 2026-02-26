@@ -11,7 +11,7 @@ import { FeedbackMiniApp } from '@/components/feedback-miniapp'
 import { DepositMiniApp } from '@/components/deposit-miniapp'
 import { SendMiniApp } from '@/components/send-miniapp'
 import { WalletMiniApp } from '@/components/wallet-miniapp'
-import { SwapMiniApp } from '@/components/swap-miniapp'
+// import { SwapMiniApp } from '@/components/swap-miniapp' // hidden temporarily
 
 export default function MiniAppPage() {
   const params = useParams()
@@ -94,9 +94,8 @@ export default function MiniAppPage() {
     return <WalletMiniApp />
   }
 
-  if (id === 'swap') {
-    return <SwapMiniApp />
-  }
+  // Swap hidden temporarily – uncomment to show again
+  // if (id === 'swap') return <SwapMiniApp />
 
   if (id === 'airdrop') {
     return (

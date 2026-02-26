@@ -85,6 +85,8 @@ export function AirdropMiniApp() {
         if (data.success) {
           setUsdcStatus({ claimed: true, claimedAt: new Date().toISOString() })
           refreshBalance()
+          // Refetch after tx confirms; balance may not be updated immediately
+          setTimeout(() => refreshBalance(), 3000)
         } else {
           setClaimError(data.error ?? 'Claim failed')
         }

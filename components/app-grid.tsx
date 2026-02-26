@@ -181,7 +181,7 @@ export function AppGrid() {
     { id: 'appstore', name: 'App Store', url: '/store', icon: <LayoutGrid />, variant: 'yellow' },
     { id: 'wallet', name: 'Wallet', url: '/app/wallet', icon: <Wallet />, variant: 'yellow' },
     { id: 'airdrop', name: 'Airdrop', url: '/app/airdrop', icon: <Gift />, variant: 'yellow' },
-    { id: 'swap', name: 'Swap', url: '/app/swap', icon: <ArrowLeftRight />, variant: 'yellow' },
+    // { id: 'swap', name: 'Swap', url: '/app/swap', icon: <ArrowLeftRight />, variant: 'yellow' }, // hidden temporarily
     ...(memewarsApp
       ? [{ id: 'memewars', name: 'MemeWars', url: memewarsApp.url, imageUrl: memewarsApp.imageUrl, variant: 'yellow' as const }]
       : []),
