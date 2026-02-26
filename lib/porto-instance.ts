@@ -5,13 +5,14 @@ import { Dialog, Mode } from 'porto'
 import { base, baseSepolia } from 'wagmi/chains'
 import { http } from 'viem'
 
-let portoInstance: Porto | null = null
+type PortoInstance = ReturnType<typeof Porto.create>
+let portoInstance: PortoInstance | null = null
 
 /**
  * Creates and returns a Porto instance directly (not via wagmi connector).
  * Lazily initialized on first call; safe to call from browser only.
  */
-export function getPortoInstance(): Porto {
+export function getPortoInstance(): PortoInstance {
   if (portoInstance) return portoInstance
 
   if (typeof window === 'undefined') {
