@@ -12,7 +12,7 @@ export const INSTALLED_KEY = 'appclaw-installed-apps'
 export const DEFAULT_INSTALLED = ['deposit', 'feedback', 'send', 'airdrop']
 
 /** Apps always on home screen (never show Get in store) */
-export const ALWAYS_ON_HOME_IDS = ['wallet', 'airdrop', 'fomo4d']
+export const ALWAYS_ON_HOME_IDS = ['wallet', 'airdrop', 'memewars']
 
 export function getInstalledIds(): string[] {
   if (typeof window === 'undefined') return DEFAULT_INSTALLED
@@ -59,13 +59,13 @@ export const MINI_APPS: MiniApp[] = [
     tags: ['For Human. By Agent.'],
   },
   {
-    id: 'fomo4d',
-    name: 'Fomo4D',
+    id: 'memewars',
+    name: 'MemeWars',
     description: 'Multiplayer Onchain Battle Arena.',
-    imageUrl: process.env.NEXT_PUBLIC_FOMO4D_APP_URL
-      ? `${process.env.NEXT_PUBLIC_FOMO4D_APP_URL.replace(/\/$/, '')}/icon.svg`
-      : '/icons/fomo4d.svg',
-    url: process.env.NEXT_PUBLIC_FOMO4D_APP_URL || 'http://localhost:3002',
+    imageUrl: process.env.NEXT_PUBLIC_MEMEWARS_APP_URL
+      ? `${process.env.NEXT_PUBLIC_MEMEWARS_APP_URL.replace(/\/$/, '')}/icon.svg`
+      : '/icons/memewars.svg',
+    url: process.env.NEXT_PUBLIC_MEMEWARS_APP_URL || 'http://localhost:3002',
     tags: ['Coming Soon'],
   },
 ]

@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Gift, LayoutGrid, Wallet, X } from 'lucide-react'
 import { getInstalledIds, removeInstalled, STORE_BROWSE_BUILTINS, MINI_APPS, type MiniApp } from '@/lib/miniapps'
 
-const FIRST_PARTY_IDS = new Set(['appstore', 'wallet', 'airdrop', 'fomo4d'])
+const FIRST_PARTY_IDS = new Set(['appstore', 'wallet', 'airdrop', 'memewars'])
 
 type GridItem = {
   id: string
@@ -176,18 +176,18 @@ export function AppGrid() {
   ]
   const installedApps = allStoreApps.filter((a) => installedSet.has(a.id))
 
-  const fomo4dApp = MINI_APPS.find((a) => a.id === 'fomo4d')
+  const memewarsApp = MINI_APPS.find((a) => a.id === 'memewars')
   const baseItems: GridItem[] = [
     { id: 'appstore', name: 'App Store', url: '/store', icon: <LayoutGrid />, variant: 'yellow' },
     { id: 'wallet', name: 'Wallet', url: '/app/wallet', icon: <Wallet />, variant: 'yellow' },
     { id: 'airdrop', name: 'Airdrop', url: '/app/airdrop', icon: <Gift />, variant: 'yellow' },
-    ...(fomo4dApp
-      ? [{ id: 'fomo4d', name: 'Fomo4D', url: fomo4dApp.url, imageUrl: fomo4dApp.imageUrl, variant: 'yellow' as const }]
+    ...(memewarsApp
+      ? [{ id: 'memewars', name: 'MemeWars', url: memewarsApp.url, imageUrl: memewarsApp.imageUrl, variant: 'yellow' as const }]
       : []),
   ]
 
   const installedItems = installedApps
-    .filter((a) => a.id !== 'airdrop' && a.id !== 'wallet' && a.id !== 'fomo4d')
+    .filter((a) => a.id !== 'airdrop' && a.id !== 'wallet' && a.id !== 'memewars')
     .map(appToGridItem)
 
   const items = [...baseItems, ...installedItems]
