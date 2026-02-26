@@ -16,6 +16,9 @@ PWA super app with **Porto** wallet on Base. Users connect with Porto to use the
    DATABASE_URL="postgresql://..."   # Neon, local Postgres, or copy from Vercel env
    ENVIRONMENT=DEVELOPMENT
    NEXT_PUBLIC_ENVIRONMENT=DEVELOPMENT
+   NEXT_PUBLIC_AIRDROP_WALLET="0x..."   # Public address of airdrop wallet (for client-side balance display)
+   AIRDROP_WALLET_PRIVATE_KEY="0x..."   # Private key of that wallet (server-side, for sending 1 USDC on claim)
+   UNISWAP_API_KEY="..."               # From https://developers.uniswap.org/dashboard (for Swap mini app)
    ```
    Use `ENVIRONMENT=PRODUCTION` and `NEXT_PUBLIC_ENVIRONMENT=PRODUCTION` for production (Base mainnet, no Developer mode in Wallet).
 
@@ -37,6 +40,14 @@ Vercel does **not** provide a persistent database. The app uses **Postgres** (e.
 ## PWA update prompt
 
 When you deploy a new version (e.g. to Vercel), users who have AppClaw open or installed see an **Update available** screen and can tap **Update** to reload and get the latest version. The app polls `GET /api/version` every 5 minutes and on tab focus; the version is taken from `VERCEL_GIT_COMMIT_SHA` on Vercel, or `BUILD_ID` / `NEXT_BUILD_ID` if set on other hosts.
+
+## Swap (Uniswap on Base)
+
+The Swap mini app lets users swap ETH and USDC on Base using the [Uniswap Trading API](https://api-docs.uniswap.org/introduction). Requires `UNISWAP_API_KEY` from the [Uniswap Developer Portal](https://developers.uniswap.org/dashboard). The API proxies quote and swap requests server-side to keep the key secure.
+
+## USDC Airdrop (1 USDC per user, one-time)
+
+The Airdrop mini app sends **1 USDC** from an airdrop wallet on Base to each user, **once per wallet**. Set `NEXT_PUBLIC_AIRDROP_WALLET` (public address) for client-side balance display, and `AIRDROP_WALLET_PRIVATE_KEY` (server-side) for sending on Claim. The client reads the USDC balance directly from Base via viem; no API for balance. Uses native USDC on Base mainnet (`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`) or Base Sepolia testnet (`0x036CbD53842c5426634e7929541eC2318f3dCF7e`).
 
 ## Campaign & Airdrop (Porto + link X)
 

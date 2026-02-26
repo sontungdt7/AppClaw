@@ -5,10 +5,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { Gift, LayoutGrid, Wallet, X } from 'lucide-react'
+import { Gift, LayoutGrid, Wallet, X, ArrowLeftRight } from 'lucide-react'
 import { getInstalledIds, removeInstalled, STORE_BROWSE_BUILTINS, MINI_APPS, type MiniApp } from '@/lib/miniapps'
 
-const FIRST_PARTY_IDS = new Set(['appstore', 'wallet', 'airdrop', 'memewars'])
+const FIRST_PARTY_IDS = new Set(['appstore', 'wallet', 'airdrop', 'swap', 'memewars'])
 
 type GridItem = {
   id: string
@@ -140,7 +140,7 @@ function GridIcon({
 
 function appToGridItem(app: MiniApp): GridItem {
   const icon =
-    app.id === 'airdrop' ? <Gift /> : app.id === 'wallet' ? <Wallet /> : undefined
+    app.id === 'airdrop' ? <Gift /> : app.id === 'wallet' ? <Wallet /> : app.id === 'swap' ? <ArrowLeftRight /> : undefined
   return {
     id: app.id,
     name: app.name,
@@ -181,13 +181,14 @@ export function AppGrid() {
     { id: 'appstore', name: 'App Store', url: '/store', icon: <LayoutGrid />, variant: 'yellow' },
     { id: 'wallet', name: 'Wallet', url: '/app/wallet', icon: <Wallet />, variant: 'yellow' },
     { id: 'airdrop', name: 'Airdrop', url: '/app/airdrop', icon: <Gift />, variant: 'yellow' },
+    { id: 'swap', name: 'Swap', url: '/app/swap', icon: <ArrowLeftRight />, variant: 'yellow' },
     ...(memewarsApp
       ? [{ id: 'memewars', name: 'MemeWars', url: memewarsApp.url, imageUrl: memewarsApp.imageUrl, variant: 'yellow' as const }]
       : []),
   ]
 
   const installedItems = installedApps
-    .filter((a) => a.id !== 'airdrop' && a.id !== 'wallet' && a.id !== 'memewars')
+    .filter((a) => a.id !== 'airdrop' && a.id !== 'wallet' && a.id !== 'swap' && a.id !== 'memewars')
     .map(appToGridItem)
 
   const items = [...baseItems, ...installedItems]
