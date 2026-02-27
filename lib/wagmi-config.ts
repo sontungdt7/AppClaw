@@ -3,6 +3,9 @@ import { base, baseSepolia } from 'wagmi/chains'
 import { porto } from 'wagmi/connectors'
 import { Dialog, Mode } from 'porto'
 
+const baseRpcUrl = process.env.NEXT_PUBLIC_BASE_RPC_URL
+const baseSepoliaRpcUrl = process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL
+
 // Base mainnet first; include Base Sepolia so we can switch from it if needed
 export const wagmiConfig = createConfig({
   chains: [base, baseSepolia],
@@ -15,7 +18,7 @@ export const wagmiConfig = createConfig({
     }),
   ],
   transports: {
-    [base.id]: http(),
-    [baseSepolia.id]: http(),
+    [base.id]: http(baseRpcUrl),
+    [baseSepolia.id]: http(baseSepoliaRpcUrl),
   },
 })
