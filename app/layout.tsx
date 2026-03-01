@@ -24,7 +24,7 @@ const vt323 = VT323({
 export const metadata: Metadata = {
   title: 'AppClaw — App For Human. Build By Agent.',
   description: 'App store for mini apps. App For Human. Build By Agent.',
-  icons: { icon: '/logo.png', apple: '/logo.png' },
+  icons: { icon: '/logo.png?v=2', apple: '/logo.png?v=2' },
   appleWebApp: { capable: true, title: 'AppClaw' },
 }
 

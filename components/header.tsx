@@ -20,7 +20,7 @@ export function Header() {
       <div className="flex h-14 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <div className="size-8 rounded-full overflow-hidden border-2 border-primary/50">
-            <Image src="/logo.png" alt="" width={32} height={32} className="size-full object-cover" />
+            <Image src="/logo.png?v=2" alt="" width={32} height={32} className="size-full object-cover" />
           </div>
           <span className="font-semibold text-lg">AppClaw</span>
         </Link>

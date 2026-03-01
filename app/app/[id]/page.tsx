@@ -30,7 +30,7 @@ export default function MiniAppPage() {
       </div>
       <Link href="/" className="flex items-center gap-2">
         <div className="size-8 rounded-full overflow-hidden border-2 border-primary/50">
-          <Image src="/logo.png" alt="" width={32} height={32} className="size-full object-cover" />
+          <Image src="/logo.png?v=2" alt="" width={32} height={32} className="size-full object-cover" />
         </div>
         <span className="font-semibold">AppClaw</span>
         <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -50,7 +50,7 @@ export default function MiniAppPage() {
       </div>
       <Link href="/" className="flex items-center gap-2">
         <div className="size-8 rounded-full overflow-hidden border-2 border-primary/50">
-          <Image src="/logo.png" alt="" width={32} height={32} className="size-full object-cover" />
+          <Image src="/logo.png?v=2" alt="" width={32} height={32} className="size-full object-cover" />
         </div>
         <span className="font-semibold">AppClaw</span>
         <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -76,7 +76,7 @@ export default function MiniAppPage() {
       </div>
       <Link href="/" className="flex items-center gap-2">
         <div className="size-8 rounded-full overflow-hidden border-2 border-primary/50">
-          <Image src="/logo.png" alt="" width={32} height={32} className="size-full object-cover" />
+          <Image src="/logo.png?v=2" alt="" width={32} height={32} className="size-full object-cover" />
         </div>
         <span className="font-semibold">AppClaw</span>
         <ChevronDown className="h-4 w-4 text-muted-foreground" />

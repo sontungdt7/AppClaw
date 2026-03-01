@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
     root: appRoot,
   },
   images: {
+    localPatterns: [
+      {
+        pathname: "/logo.png",
+        search: "?v=2",
+      },
+    ],
     remotePatterns: [
       {
         protocol: "https",

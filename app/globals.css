@@ -26,9 +26,9 @@
   --muted: #e5e5e5;
   --muted-foreground: #525252;
   --border: #e5e5e5;
-  --primary: #00bfff;
+  --primary: #0000ff;
   --primary-foreground: #ffffff;
-  --accent: #00bfff;
+  --accent: #0000ff;
 }
 
 @layer base {
