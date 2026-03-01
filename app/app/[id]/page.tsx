@@ -6,12 +6,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, ChevronDown, DollarSign, MessageCircleQuestion, Send, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AirdropMiniApp } from '@/components/airdrop-miniapp'
 import { FeedbackMiniApp } from '@/components/feedback-miniapp'
 import { DepositMiniApp } from '@/components/deposit-miniapp'
 import { SendMiniApp } from '@/components/send-miniapp'
-import { WalletMiniApp } from '@/components/wallet-miniapp'
-// import { SwapMiniApp } from '@/components/swap-miniapp' // hidden temporarily
 
 export default function MiniAppPage() {
   const params = useParams()
@@ -89,38 +86,6 @@ export default function MiniAppPage() {
       </div>
     </div>
   )
-
-  if (id === 'wallet') {
-    return <WalletMiniApp />
-  }
-
-  // Swap hidden temporarily – uncomment to show again
-  // if (id === 'swap') return <SwapMiniApp />
-
-  if (id === 'airdrop') {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <div className="border-b border-border">
-          <div className="container mx-auto flex h-14 items-center gap-4 px-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="rounded p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label="Back"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <h1 className="font-semibold">Airdrop</h1>
-          </div>
-        </div>
-        <main className="flex-1">
-          <Suspense fallback={<div className="p-6 animate-pulse text-muted-foreground">Loading...</div>}>
-            <AirdropMiniApp />
-          </Suspense>
-        </main>
-      </div>
-    )
-  }
 
   if (id === 'feedback') {
     return (

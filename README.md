@@ -4,6 +4,22 @@ App store for mini apps. **App For Human. Build By Agent.**
 
 PWA super app with **Porto** wallet on Base. Users connect with Porto to use the app. Airdrop: users link their X account; the server runs batch airdrops every hour to eligible users (linked X + reposted). Capped at 300 users; campaign ends after 3 days.
 
+## Crypto App Factory MVP
+
+AppClaw now has 3 primary surfaces:
+
+- **Build** (`/build`): Fixed Swap app template builder (input app name + app logo only).
+- **AppStore** (`/appstore`): Browse apps built by users and built-in templates.
+- **Profile** (`/profile`): Wallet overview and "My Apps" management.
+
+Current MVP behavior:
+
+- Build in Phase 1 is **frontend-only** and generates a Swap app deployment draft for Vercel.
+- Clicking **Generate Swap App** submits to `POST /api/build/swap/deploy`; server calls Vercel Deployments API and returns the deployed app URL (status-page template).
+- Build UI polls `GET /api/build/swap/deploy-status` and shows progress (`queued -> building -> ready`).
+- Build form state (name/logo draft) is stored in local storage for quick session continuity.
+- Profile "My Apps" uses installed-app device state as a temporary ownership model until account-level ownership is added.
+
 ## Setup
 
 1. Install dependencies:
@@ -16,6 +32,8 @@ PWA super app with **Porto** wallet on Base. Users connect with Porto to use the
    DATABASE_URL="postgresql://..."   # Neon, local Postgres, or copy from Vercel env
    ENVIRONMENT=DEVELOPMENT
    NEXT_PUBLIC_ENVIRONMENT=DEVELOPMENT
+   VERCEL_API_TOKEN="..."            # Required for Build -> Generate Swap App deployment API
+   VERCEL_TEAM_ID="..."              # Optional (set when deploying under a Vercel team)
    NEXT_PUBLIC_AIRDROP_WALLET="0x..."   # Public address of airdrop wallet (for client-side balance display)
    AIRDROP_WALLET_PRIVATE_KEY="0x..."   # Private key of that wallet (server-side, for sending 1 USDC on claim)
    UNISWAP_API_KEY="..."               # From https://developers.uniswap.org/dashboard (for Swap mini app)

@@ -1,24 +1,22 @@
 'use client'
 
+import Link from 'next/link'
+import { Wallet } from 'lucide-react'
 import { useWallet } from '@/lib/wallet-context'
 
 export function WalletButton() {
-  const { isConnected, address, connect, disconnect, isConnecting } = useWallet()
+  const { isConnected, address, connect, isConnecting } = useWallet()
 
   if (isConnected && address) {
     return (
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground font-mono truncate max-w-[100px] sm:max-w-[140px]">
-          {address.slice(0, 6)}...{address.slice(-4)}
-        </span>
-        <button
-          type="button"
-          onClick={() => disconnect()}
-          className="rounded-md border border-border bg-muted/50 px-2.5 py-1 text-xs font-medium hover:bg-muted"
-        >
-          Disconnect
-        </button>
-      </div>
+      <Link
+        href="/profile"
+        className="inline-flex items-center justify-center rounded-md border border-border bg-muted/50 p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+        aria-label="Open profile"
+        title="Open profile"
+      >
+        <Wallet className="h-5 w-5" />
+      </Link>
     )
   }
 
